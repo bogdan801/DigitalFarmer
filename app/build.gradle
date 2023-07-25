@@ -4,6 +4,7 @@ plugins {
 
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -96,6 +97,7 @@ dependencies {
     def viewmodel_version = "2.5.0-rc02"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$viewmodel_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$viewmodel_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-compose:2.6.1"
 
     //dataStore
     def datastore_version = "1.0.0"
