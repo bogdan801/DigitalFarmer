@@ -1,4 +1,4 @@
-package com.bogdan801.digitalfarmer.ui.theme
+package com.bogdan801.digitalfarmer.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

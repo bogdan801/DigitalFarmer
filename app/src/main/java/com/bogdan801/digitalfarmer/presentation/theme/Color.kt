@@ -1,4 +1,4 @@
-package com.bogdan801.digitalfarmer.ui.theme
+package com.bogdan801.digitalfarmer.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
