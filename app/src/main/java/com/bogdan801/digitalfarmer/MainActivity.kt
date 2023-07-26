@@ -16,15 +16,13 @@ import com.bogdan801.digitalfarmer.presentation.login.GoogleAuthUIClient
 import com.bogdan801.digitalfarmer.presentation.navigation.Navigation
 import com.bogdan801.digitalfarmer.presentation.theme.DigitalFarmerTheme
 import com.google.android.gms.auth.api.identity.Identity
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    val googleAuthUIClient by lazy {
-        GoogleAuthUIClient(
-            context = applicationContext,
-            oneTapClient = Identity.getSignInClient(applicationContext)
-        )
-    }
-
+    @Inject
+    lateinit var googleAuthUIClient: GoogleAuthUIClient
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

@@ -2,12 +2,14 @@ package com.bogdan801.digitalfarmer.presentation.screens.sign_in
 
 import androidx.lifecycle.ViewModel
 import com.bogdan801.digitalfarmer.presentation.login.SignInResult
-import com.bogdan801.digitalfarmer.presentation.login.SignInState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import javax.inject.Inject
 
-class SignInViewModel: ViewModel() {
+@HiltViewModel
+class SignInViewModel @Inject constructor(): ViewModel() {
     private val _state = MutableStateFlow(SignInState())
     val state = _state.asStateFlow()
 
