@@ -1,7 +1,7 @@
 package com.bogdan801.digitalfarmer.di
 
 import android.content.Context
-import com.bogdan801.digitalfarmer.presentation.login.GoogleAuthUIClient
+import com.bogdan801.digitalfarmer.data.login.AuthUIClient
 import com.google.android.gms.auth.api.identity.Identity
 import dagger.Module
 import dagger.Provides
@@ -21,8 +21,8 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideGoogleAuthUIClient(@ApplicationContext app: Context): GoogleAuthUIClient {
-        return GoogleAuthUIClient(
+    fun provideAuthUIClient(@ApplicationContext app: Context): AuthUIClient {
+        return AuthUIClient(
             context = app,
             oneTapClient = Identity.getSignInClient(app)
         )

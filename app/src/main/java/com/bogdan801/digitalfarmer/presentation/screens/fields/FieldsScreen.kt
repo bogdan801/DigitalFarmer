@@ -17,22 +17,19 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.bogdan801.digitalfarmer.presentation.login.GoogleAuthUIClient
-import com.bogdan801.digitalfarmer.presentation.login.UserData
+import com.bogdan801.digitalfarmer.data.login.AuthUIClient
 import com.bogdan801.digitalfarmer.presentation.navigation.Screen
-import com.bogdan801.digitalfarmer.presentation.screens.sign_in.SignInViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun FieldsScreen(
     navController: NavHostController,
-    viewModel: FieldsViewModel = hiltViewModel(),
-    googleAuthUIClient: GoogleAuthUIClient
+    viewModel: FieldsViewModel = hiltViewModel()
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val userData = remember{
-        googleAuthUIClient.getSignedInUser()
+        viewModel.authUIClient.getSignedInUser()
     }
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -48,23 +45,23 @@ fun FieldsScreen(
                 contentDescription = "Profile picture",
                 contentScale = ContentScale.Crop
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = userData.username.toString())
-            Text(text = userData.userID)
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                onClick = {
-                    scope.launch {
-                        googleAuthUIClient.signOut()
-                        Toast.makeText(context, "Signed out", Toast.LENGTH_SHORT).show()
-                        navController.navigate(Screen.LogInScreen.route){
-                            popUpTo(0)
-                        }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = userData?.username.toString())
+        Text(text = userData?.userID.toString())
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(
+            onClick = {
+                scope.launch {
+                    viewModel.authUIClient.signOut()
+                    Toast.makeText(context, "Signed out", Toast.LENGTH_SHORT).show()
+                    navController.navigate(Screen.SignInScreen.route){
+                        popUpTo(0)
                     }
                 }
-            ) {
-                Text(text = "Sign out")
             }
+        ) {
+            Text(text = "Sign out")
         }
     }
 }
