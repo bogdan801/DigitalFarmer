@@ -9,10 +9,12 @@ import com.bogdan801.digitalfarmer.domain.model.User
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
 import com.google.android.gms.auth.api.identity.SignInClient
+import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CancellationException
@@ -80,9 +82,13 @@ class AuthUIClient(
         }
     }
 
-    suspend fun createUserAndSignIn(email: String, password: String): SignInResult {
+    suspend fun createUserAndSignIn(userName: String, email: String, password: String): SignInResult {
         try {
             val result = auth.createUserWithEmailAndPassword(email, password).await()
+
+            result.user!!.updateProfile(
+                UserProfileChangeRequest.Builder().setDisplayName(userName).build()
+            )
             return SignInResult(
                 userData = User(
                     userID = result.user?.uid.toString(),
@@ -91,7 +97,7 @@ class AuthUIClient(
                 )
             )
         }
-        catch (e: IllegalArgumentException){
+        catch (e: FirebaseAuthInvalidCredentialsException){
             e.printStackTrace()
             return SignInResult(
                 userData = null,
@@ -113,6 +119,14 @@ class AuthUIClient(
                 userData = null,
                 errorMessage = e.message,
                 errorType = ErrorType.AccountAlreadyExists
+            )
+        }
+        catch (e: FirebaseNetworkException){
+            e.printStackTrace()
+            return SignInResult(
+                userData = null,
+                errorMessage = e.message,
+                errorType = ErrorType.NoInternetConnection
             )
         }
         catch (e: Exception){
@@ -145,6 +159,14 @@ class AuthUIClient(
                 errorType = ErrorType.WrongEmailOrPassWord
             )
         }
+        catch (e: FirebaseNetworkException){
+            e.printStackTrace()
+            return SignInResult(
+                userData = null,
+                errorMessage = e.message,
+                errorType = ErrorType.NoInternetConnection
+            )
+        }
         catch (e: Exception){
             e.printStackTrace()
             if(e is CancellationException) throw e
@@ -174,4 +196,9 @@ class AuthUIClient(
             photoUrl?.toString()
         )
     }
+
+    fun updateUserName(newName: String): Boolean?
+        = auth.currentUser?.updateProfile(
+            UserProfileChangeRequest.Builder().setDisplayName(newName).build()
+        )?.isSuccessful
 }

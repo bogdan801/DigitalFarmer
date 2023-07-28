@@ -13,6 +13,7 @@ enum class ErrorType {
     WrongEmailFormat,
     WeakPassword,
     WrongEmailOrPassWord,
+    NoInternetConnection,
     Other
 }
 

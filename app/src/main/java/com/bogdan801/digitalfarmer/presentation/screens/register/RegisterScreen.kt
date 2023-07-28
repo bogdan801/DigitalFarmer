@@ -87,7 +87,7 @@ fun RegisterScreen(
                         return@Button
                     }
                     scope.launch {
-                        val result = viewModel.authUIClient.createUserAndSignIn(state.email, state.password)
+                        val result = viewModel.authUIClient.createUserAndSignIn(state.userName, state.email, state.password)
                         when(result.errorType){
                             ErrorType.AccountAlreadyExists -> {
                                 Toast.makeText(context, "Account already exists", Toast.LENGTH_SHORT).show()
@@ -99,6 +99,9 @@ fun RegisterScreen(
                                 Toast.makeText(context, "Weak password", Toast.LENGTH_SHORT).show()
                             }
                             ErrorType.WrongEmailOrPassWord -> {}
+                            ErrorType.NoInternetConnection -> {
+                                Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
+                            }
                             ErrorType.Other -> {
                                 Toast.makeText(context, result.errorMessage, Toast.LENGTH_SHORT).show()
                             }

@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -78,6 +79,7 @@ fun SignInScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
+            var showForgotPassword by remember { mutableStateOf(false) }
             Button(
                 modifier = Modifier.width(200.dp),
                 onClick = {
@@ -104,6 +106,10 @@ fun SignInScreen(
                                 }
                                 ErrorType.WrongEmailOrPassWord -> {
                                     Toast.makeText(context, "Wrong email or password", Toast.LENGTH_SHORT).show()
+                                    showForgotPassword = true
+                                }
+                                ErrorType.NoInternetConnection -> {
+                                    Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
                                 }
                                 ErrorType.Other -> {
                                     Toast.makeText(context, signInResult.errorMessage, Toast.LENGTH_SHORT).show()
@@ -131,8 +137,17 @@ fun SignInScreen(
             ) {
                 Text(text = "Sign in with Google")
             }
+            AnimatedVisibility(visible = showForgotPassword) {
+                Spacer(modifier = Modifier.height(8.dp))
+                TextButton(
+                    onClick = {
+                        //navController.navigate(Screen.RegisterScreen.route)
+                    }
+                ) {
+                    Text(text = "Forgot the password? Recover")
+                }
+            }
             Spacer(modifier = Modifier.height(8.dp))
-
             TextButton(
                 onClick = {
                     navController.navigate(Screen.RegisterScreen.route)
