@@ -1,4 +1,4 @@
-package com.bogdan801.digitalfarmer.presentation.screens.fields
+package com.bogdan801.digitalfarmer.presentation.screens.authentication.recover_password
 
 import androidx.lifecycle.ViewModel
 import com.bogdan801.digitalfarmer.data.login.AuthUIClient
@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class FieldsViewModel
+class RecoverPasswordViewModel
 @Inject
 constructor(
     val authUIClient: AuthUIClient
-): ViewModel() {
-    private val _screenState = MutableStateFlow(FieldsScreenState())
+) : ViewModel() {
+    private val _screenState = MutableStateFlow(RecoverPasswordScreenState())
     val screenState = _screenState.asStateFlow()
 }

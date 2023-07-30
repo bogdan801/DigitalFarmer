@@ -1,4 +1,4 @@
-package com.bogdan801.digitalfarmer.presentation.screens.sign_in
+package com.bogdan801.digitalfarmer.presentation.screens.authentication.sign_in
 
 import android.app.Activity
 import android.widget.Toast
@@ -50,6 +50,7 @@ fun SignInScreen(
             navController.navigate(Screen.FieldsScreen.route){
                 popUpTo(0)
             }
+            viewModel.resetState()
         }
     }
 
@@ -79,7 +80,6 @@ fun SignInScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            var showForgotPassword by remember { mutableStateOf(false) }
             Button(
                 modifier = Modifier.width(200.dp),
                 onClick = {
@@ -106,7 +106,7 @@ fun SignInScreen(
                                 }
                                 ErrorType.WrongEmailOrPassWord -> {
                                     Toast.makeText(context, "Wrong email or password", Toast.LENGTH_SHORT).show()
-                                    showForgotPassword = true
+                                     viewModel.updateShowForgotPassword(true)
                                 }
                                 ErrorType.NoInternetConnection -> {
                                     Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
@@ -117,7 +117,6 @@ fun SignInScreen(
                                 else -> {}
                             }
                         }
-
                     }
                 }
             ) {
@@ -137,11 +136,11 @@ fun SignInScreen(
             ) {
                 Text(text = "Sign in with Google")
             }
-            AnimatedVisibility(visible = showForgotPassword) {
+            AnimatedVisibility(visible = state.showForgotPassword) {
                 Spacer(modifier = Modifier.height(8.dp))
                 TextButton(
                     onClick = {
-                        //navController.navigate(Screen.RegisterScreen.route)
+                        navController.navigate(Screen.RecoverPasswordScreen.route)
                     }
                 ) {
                     Text(text = "Forgot the password? Recover")

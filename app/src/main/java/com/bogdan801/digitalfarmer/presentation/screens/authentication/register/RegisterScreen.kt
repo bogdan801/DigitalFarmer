@@ -1,4 +1,4 @@
-package com.bogdan801.digitalfarmer.presentation.screens.register
+package com.bogdan801.digitalfarmer.presentation.screens.authentication.register
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*

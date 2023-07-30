@@ -1,4 +1,4 @@
-package com.bogdan801.digitalfarmer.presentation.screens.sign_in
+package com.bogdan801.digitalfarmer.presentation.screens.authentication.sign_in
 
 import androidx.lifecycle.ViewModel
 import com.bogdan801.digitalfarmer.data.login.AuthUIClient
@@ -45,6 +45,14 @@ constructor(
         _state.update {
             it.copy(
                 password = newString
+            )
+        }
+    }
+
+    fun updateShowForgotPassword(value: Boolean){
+        _state.update {
+            it.copy(
+                showForgotPassword = value
             )
         }
     }

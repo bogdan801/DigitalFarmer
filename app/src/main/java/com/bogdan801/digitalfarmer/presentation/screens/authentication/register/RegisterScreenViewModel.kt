@@ -1,4 +1,4 @@
-package com.bogdan801.digitalfarmer.presentation.screens.register
+package com.bogdan801.digitalfarmer.presentation.screens.authentication.register
 
 import androidx.lifecycle.ViewModel
 import com.bogdan801.digitalfarmer.data.login.AuthUIClient

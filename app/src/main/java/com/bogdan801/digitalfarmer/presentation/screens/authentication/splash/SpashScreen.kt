@@ -1,4 +1,4 @@
-package com.bogdan801.digitalfarmer.presentation.screens.splash
+package com.bogdan801.digitalfarmer.presentation.screens.authentication.splash
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

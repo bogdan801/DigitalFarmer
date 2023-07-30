@@ -1,5 +1,4 @@
-package com.bogdan801.digitalfarmer.presentation.screens.register
-
+package com.bogdan801.digitalfarmer.presentation.screens.authentication.register
 
 data class RegisterScreenState(
     val userName: String = "",

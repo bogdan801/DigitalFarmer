@@ -13,7 +13,6 @@ import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.ktx.auth
@@ -85,10 +84,10 @@ class AuthUIClient(
 
     suspend fun createUserAndSignIn(userName: String, email: String, password: String): SignInResult {
         try {
-            val result = auth.createUserWithEmailAndPassword(email, password).await()
+            val result = auth.createUserWithEmailAndPassword(email.trimEnd(), password).await()
 
             result.user!!.updateProfile(
-                UserProfileChangeRequest.Builder().setDisplayName(userName).build()
+                UserProfileChangeRequest.Builder().setDisplayName(userName.trimEnd()).build()
             )
             return SignInResult(
                 userData = User(
@@ -98,52 +97,26 @@ class AuthUIClient(
                 )
             )
         }
-        catch (e: FirebaseAuthInvalidCredentialsException){
-            e.printStackTrace()
-            return SignInResult(
-                userData = null,
-                errorMessage = e.message,
-                errorType = ErrorType.WrongEmailFormat
-            )
-        }
-        catch (e: FirebaseAuthWeakPasswordException){
-            e.printStackTrace()
-            return SignInResult(
-                userData = null,
-                errorMessage = e.message,
-                errorType = ErrorType.WeakPassword
-            )
-        }
-        catch (e: FirebaseAuthUserCollisionException){
-            e.printStackTrace()
-            return SignInResult(
-                userData = null,
-                errorMessage = e.message,
-                errorType = ErrorType.AccountAlreadyExists
-            )
-        }
-        catch (e: FirebaseNetworkException){
-            e.printStackTrace()
-            return SignInResult(
-                userData = null,
-                errorMessage = e.message,
-                errorType = ErrorType.NoInternetConnection
-            )
-        }
         catch (e: Exception){
             e.printStackTrace()
             if(e is CancellationException) throw e
+
             return SignInResult(
                 userData = null,
                 errorMessage = e.message,
-                errorType = ErrorType.Other
+                errorType = when (e) {
+                    is FirebaseAuthInvalidCredentialsException -> ErrorType.WrongEmailFormat
+                    is FirebaseAuthUserCollisionException -> ErrorType.AccountAlreadyExists
+                    is FirebaseNetworkException -> ErrorType.NoInternetConnection
+                    else -> ErrorType.Other
+                }
             )
         }
     }
 
     suspend fun signInWithEmailAndPassword(email: String, password: String): SignInResult {
         try {
-            val result = auth.signInWithEmailAndPassword(email, password).await()
+            val result = auth.signInWithEmailAndPassword(email.trimEnd(), password).await()
             return SignInResult(
                 userData = User(
                     userID = result.user?.uid.toString(),
@@ -152,36 +125,19 @@ class AuthUIClient(
                 )
             )
         }
-        catch (e: FirebaseAuthInvalidCredentialsException){
-            e.printStackTrace()
-            return SignInResult(
-                userData = null,
-                errorMessage = e.message,
-                errorType = ErrorType.WrongEmailOrPassWord
-            )
-        }
-        catch (e: FirebaseAuthInvalidUserException){
-            e.printStackTrace()
-            return SignInResult(
-                userData = null,
-                errorMessage = e.message,
-                errorType = ErrorType.WrongEmailOrPassWord
-            )
-        }
-        catch (e: FirebaseNetworkException){
-            e.printStackTrace()
-            return SignInResult(
-                userData = null,
-                errorMessage = e.message,
-                errorType = ErrorType.NoInternetConnection
-            )
-        }
         catch (e: Exception){
             e.printStackTrace()
             if(e is CancellationException) throw e
+
             return SignInResult(
                 userData = null,
-                errorMessage = e.message
+                errorMessage = e.message,
+                errorType = when (e) {
+                    is FirebaseAuthInvalidCredentialsException -> ErrorType.WrongEmailFormat
+                    is FirebaseAuthInvalidUserException -> ErrorType.WrongEmailFormat
+                    is FirebaseNetworkException -> ErrorType.NoInternetConnection
+                    else -> ErrorType.Other
+                }
             )
         }
     }
