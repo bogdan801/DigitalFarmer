@@ -11,6 +11,7 @@ import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdToken
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.GoogleAuthProvider
@@ -152,6 +153,14 @@ class AuthUIClient(
             )
         }
         catch (e: FirebaseAuthInvalidCredentialsException){
+            e.printStackTrace()
+            return SignInResult(
+                userData = null,
+                errorMessage = e.message,
+                errorType = ErrorType.WrongEmailOrPassWord
+            )
+        }
+        catch (e: FirebaseAuthInvalidUserException){
             e.printStackTrace()
             return SignInResult(
                 userData = null,

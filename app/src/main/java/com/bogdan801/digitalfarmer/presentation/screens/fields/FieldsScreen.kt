@@ -28,7 +28,7 @@ fun FieldsScreen(
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val userData = remember{
+    val userData = remember {
         viewModel.authUIClient.getSignedInUser()
     }
     Column(
