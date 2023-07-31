@@ -133,8 +133,8 @@ class AuthUIClient(
                 userData = null,
                 errorMessage = e.message,
                 errorType = when (e) {
-                    is FirebaseAuthInvalidCredentialsException -> ErrorType.WrongEmailFormat
-                    is FirebaseAuthInvalidUserException -> ErrorType.WrongEmailFormat
+                    is FirebaseAuthInvalidCredentialsException -> ErrorType.WrongEmailOrPassWord
+                    is FirebaseAuthInvalidUserException -> ErrorType.WrongEmailOrPassWord
                     is FirebaseNetworkException -> ErrorType.NoInternetConnection
                     else -> ErrorType.Other
                 }
@@ -160,6 +160,17 @@ class AuthUIClient(
             username = displayName,
             photoUrl?.toString()
         )
+    }
+
+
+    fun sendRecoverPasswordEmail(address: String, onSuccess: () -> Unit, onError: (e: Exception) -> Unit) {
+        auth.sendPasswordResetEmail(address.trimEnd())
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener {
+                onError(it)
+            }
     }
 
     fun updateUserName(newName: String): Boolean?

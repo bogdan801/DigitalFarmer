@@ -5,8 +5,11 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -15,6 +18,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,6 +36,7 @@ fun SignInScreen(
     viewModel: SignInViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val focusManager  = LocalFocusManager.current
     val scope = rememberCoroutineScope()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -55,7 +62,15 @@ fun SignInScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = {
+                    focusManager.clearFocus()
+                }
+            ),
         contentAlignment = Alignment.Center
     ){
         Column(
@@ -67,17 +82,48 @@ fun SignInScreen(
                 modifier = Modifier
                     .fillMaxWidth(),
                 value = state.email,
-                onValueChange = { viewModel.updateEmail(it) }
+                onValueChange = { viewModel.updateEmail(it) },
+                placeholder = {
+                    Text("Email")
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                    }
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
-
             TextField(
                 modifier = Modifier
                     .fillMaxWidth(),
                 value = state.password,
                 onValueChange = { viewModel.updatePassword(it) },
-                visualTransformation = PasswordVisualTransformation()
+                visualTransformation = PasswordVisualTransformation(),
+                placeholder = {
+                    Text("Password")
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                    }
+                )
             )
+            TextButton(
+                modifier = Modifier.align(Alignment.End),
+                onClick = {
+                    navController.navigate(Screen.RecoverPasswordScreen.route)
+                }
+            ) {
+                Text(text = "Forgot the password? Recover")
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
@@ -106,7 +152,6 @@ fun SignInScreen(
                                 }
                                 ErrorType.WrongEmailOrPassWord -> {
                                     Toast.makeText(context, "Wrong email or password", Toast.LENGTH_SHORT).show()
-                                     viewModel.updateShowForgotPassword(true)
                                 }
                                 ErrorType.NoInternetConnection -> {
                                     Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
@@ -135,16 +180,6 @@ fun SignInScreen(
                 }
             ) {
                 Text(text = "Sign in with Google")
-            }
-            AnimatedVisibility(visible = state.showForgotPassword) {
-                Spacer(modifier = Modifier.height(8.dp))
-                TextButton(
-                    onClick = {
-                        navController.navigate(Screen.RecoverPasswordScreen.route)
-                    }
-                ) {
-                    Text(text = "Forgot the password? Recover")
-                }
             }
             Spacer(modifier = Modifier.height(8.dp))
             TextButton(

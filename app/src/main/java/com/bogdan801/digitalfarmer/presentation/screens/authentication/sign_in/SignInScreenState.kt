@@ -4,6 +4,5 @@ data class SignInScreenState(
     val isSignInSuccessful: Boolean = false,
     val signInError: String? = null,
     val email: String = "",
-    val password: String = "",
-    val showForgotPassword: Boolean = false
+    val password: String = ""
 )

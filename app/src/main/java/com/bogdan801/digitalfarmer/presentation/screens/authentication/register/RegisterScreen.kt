@@ -1,16 +1,24 @@
 package com.bogdan801.digitalfarmer.presentation.screens.authentication.register
 
 import android.widget.Toast
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,11 +34,20 @@ fun RegisterScreen(
     viewModel: RegisterScreenViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val focusManager  = LocalFocusManager.current
     val scope = rememberCoroutineScope()
     val state by viewModel.screenState.collectAsStateWithLifecycle()
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = {
+                    focusManager.clearFocus()
+                }
+            ),
         contentAlignment = Alignment.Center
     ){
         Column(
@@ -41,7 +58,19 @@ fun RegisterScreen(
                 modifier = Modifier
                     .fillMaxWidth(),
                 value = state.userName,
-                onValueChange = { viewModel.updateUsername(it) }
+                onValueChange = { viewModel.updateUsername(it) },
+                placeholder = {
+                    Text("Name")
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                    }
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -49,7 +78,19 @@ fun RegisterScreen(
                 modifier = Modifier
                     .fillMaxWidth(),
                 value = state.email,
-                onValueChange = { viewModel.updateEmail(it) }
+                onValueChange = { viewModel.updateEmail(it) },
+                placeholder = {
+                    Text("Email")
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                    }
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -58,7 +99,19 @@ fun RegisterScreen(
                     .fillMaxWidth(),
                 value = state.password,
                 onValueChange = { viewModel.updatePassword(it) },
-                visualTransformation = PasswordVisualTransformation()
+                visualTransformation = PasswordVisualTransformation(),
+                placeholder = {
+                    Text("Password")
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                    }
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -67,7 +120,19 @@ fun RegisterScreen(
                     .fillMaxWidth(),
                 value = state.passwordConfirm,
                 onValueChange = { viewModel.updatePasswordConfirm(it) },
-                visualTransformation = PasswordVisualTransformation()
+                visualTransformation = PasswordVisualTransformation(),
+                placeholder = {
+                    Text("Repeat password")
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                    }
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
 

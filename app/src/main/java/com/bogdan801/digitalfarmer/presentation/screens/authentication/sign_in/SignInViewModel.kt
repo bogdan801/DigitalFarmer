@@ -48,12 +48,4 @@ constructor(
             )
         }
     }
-
-    fun updateShowForgotPassword(value: Boolean){
-        _state.update {
-            it.copy(
-                showForgotPassword = value
-            )
-        }
-    }
 }
