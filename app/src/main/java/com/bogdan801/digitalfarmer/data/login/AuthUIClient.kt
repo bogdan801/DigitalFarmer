@@ -158,7 +158,7 @@ class AuthUIClient(
         User(
             userID = uid,
             username = displayName,
-            photoUrl?.toString()
+            profilePictureUrl = photoUrl?.toString()
         )
     }
 
