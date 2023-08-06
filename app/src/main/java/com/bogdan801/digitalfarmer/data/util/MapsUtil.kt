@@ -30,3 +30,23 @@ fun getPolygonCenterPoint(polygonPointsList: List<LatLng>): LatLng {
 
     return bounds.center
 }
+
+private data class Point(val x: Double, val y: Double)
+fun getClosestPointToASegment(p: LatLng, a: LatLng, b: LatLng): LatLng {
+    val ab = Point(b.latitude - a.latitude, b.longitude - a.longitude)
+    val ap = Point(p.latitude - a.latitude, p.longitude - a.longitude)
+
+    val dotProduct = (ap.x * ab.x) + (ap.y * ab.y)
+    val abLengthSquared = (ab.x * ab.x) + (ab.y * ab.y)
+
+    if (dotProduct <= 0) return a
+    else if(dotProduct >= abLengthSquared) return b
+
+    val projectionX = dotProduct / abLengthSquared * ab.x
+    val projectionY = dotProduct / abLengthSquared * ab.y
+
+    val cX = a.latitude + projectionX
+    val cY = a.longitude + projectionY
+
+    return LatLng(cX, cY)
+}

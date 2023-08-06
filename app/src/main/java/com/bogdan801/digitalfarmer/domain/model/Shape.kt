@@ -24,7 +24,6 @@ open class ShapeBase(
             if(_points.isEmpty() || _points.size < 3) return false
             return _points.first() == _points.last()
         }
-
 }
 
 @Suppress("MemberVisibilityCanBePrivate")
@@ -43,6 +42,11 @@ class MutableShape(shapePoints: List<LatLng>): ShapeBase(shapePoints.toMutableLi
 
     fun setPoint(point: LatLng): Shape {
         _points.add(point)
+        return toShape()
+    }
+
+    fun insertPoint(point: LatLng, index: Int): Shape {
+        _points.add(index, point)
         return toShape()
     }
 

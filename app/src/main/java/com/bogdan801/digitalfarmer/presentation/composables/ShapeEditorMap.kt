@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.bogdan801.digitalfarmer.R
 import com.bogdan801.digitalfarmer.data.util.distanceTo
+import com.bogdan801.digitalfarmer.data.util.getClosestPointToASegment
 import com.bogdan801.digitalfarmer.data.util.getPolygonCenterPoint
 import com.bogdan801.digitalfarmer.data.util.getZoomIndependentCircleRadius
 import com.bogdan801.digitalfarmer.domain.model.Shape
@@ -49,6 +50,19 @@ fun ShapeEditorMap(
                 }
             }
         ){
+            if(shape.pointCount == 3) {
+                MapMarker(
+                    state = MarkerState(
+                        position = getClosestPointToASegment(
+                            shape.points[2],
+                            shape.points[0],
+                            shape.points[1]
+                        )
+                    ),
+                    iconResourceId = R.drawable.ic_point
+                )
+
+            }
             if(shape.isShapeClosed) {
                 Polygon(
                     points = shape.points,
@@ -85,7 +99,9 @@ fun ShapeEditorMap(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Text(text = if(shape.isShapeClosed) shape.area.toInt().toString() else "Open")
+
+
+            //Text(text = if(shape.isShapeClosed) shape.area.toInt().toString() else "Open")
 
             Button(
                 modifier = Modifier.width(100.dp),
