@@ -1,7 +1,9 @@
 package com.bogdan801.digitalfarmer.data.util
 
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import kotlin.math.*
+
 
 const val earthRadiusM: Double = 6372800.0
 
@@ -17,4 +19,14 @@ fun LatLng.distanceTo(point: LatLng): Double {
     val a = sin(dLat / 2).pow(2.toDouble()) + sin(dLon / 2).pow(2.toDouble()) * cos(originLat) * cos(destinationLat)
     val c = 2 * asin(sqrt(a))
     return earthRadiusM * c
+}
+
+fun getPolygonCenterPoint(polygonPointsList: List<LatLng>): LatLng {
+    val bounds = LatLngBounds.Builder().apply {
+        polygonPointsList.forEach {
+            include(it)
+        }
+    }.build()
+
+    return bounds.center
 }

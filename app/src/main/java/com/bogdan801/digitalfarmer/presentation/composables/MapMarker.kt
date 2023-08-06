@@ -20,6 +20,7 @@ fun MapMarker(
     title: String = "",
     draggable: Boolean = false,
     @DrawableRes iconResourceId: Int? = null,
+    anchor: Offset = Offset(0.5f, 0.5f),
     onClick: (Marker) -> Boolean = {_->false}
 ) {
     val context = LocalContext.current
@@ -28,7 +29,7 @@ fun MapMarker(
         state = state,
         title = title,
         icon = icon,
-        anchor = Offset(0.5f, 0.5f),
+        anchor = anchor,
         draggable = draggable,
         onClick = onClick
     )
