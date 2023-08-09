@@ -5,16 +5,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.bogdan801.digitalfarmer.R
 import com.bogdan801.digitalfarmer.data.util.distanceTo
-import com.bogdan801.digitalfarmer.data.util.getClosestPointToASegment
 import com.bogdan801.digitalfarmer.data.util.getPolygonCenterPoint
-import com.bogdan801.digitalfarmer.data.util.getZoomIndependentCircleRadius
+import com.bogdan801.digitalfarmer.data.util.getTouchRadius
 import com.bogdan801.digitalfarmer.domain.model.Shape
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -24,7 +23,10 @@ import com.google.maps.android.compose.*
 fun ShapeEditorMap(
     modifier: Modifier,
     shape: Shape,
-    cameraPosition: CameraPosition = CameraPosition.fromLatLngZoom(LatLng(51.7958635,33.0600247), 15f),
+    cameraPosition: CameraPosition = CameraPosition.fromLatLngZoom(
+        LatLng(51.7958635, 33.0600247),
+        15f
+    ),
     onShapeChanged: (newShape: Shape) -> Unit
 ) {
     Column(modifier = modifier) {
@@ -38,35 +40,15 @@ fun ShapeEditorMap(
                 .weight(1f),
             properties = MapProperties(mapType = MapType.HYBRID),
             cameraPositionState = cameraPositionState,
-            onMapLongClick = {coordinates ->
-                if(!shape.isShapeClosed){
-                    if(shape.isEmpty) onShapeChanged(shape.toMutableShape().setPoint(coordinates))
-                    else {
-                        if(shape.points[0].distanceTo(coordinates) < getZoomIndependentCircleRadius(zoom = cameraPositionState.position.zoom, scalar = 2.0)){
-                            onShapeChanged(shape.toMutableShape().closeShape())
-                        }
-                        else onShapeChanged(shape.toMutableShape().setPoint(coordinates))
-                    }
-                }
+            onMapLongClick = { coordinates ->
+                if (!shape.isShapeClosed) onShapeChanged(shape.toMutableShape().setPoint(coordinates))
             }
         ){
-            if(shape.pointCount == 3) {
-                MapMarker(
-                    state = MarkerState(
-                        position = getClosestPointToASegment(
-                            shape.points[2],
-                            shape.points[0],
-                            shape.points[1]
-                        )
-                    ),
-                    iconResourceId = R.drawable.ic_point
-                )
 
-            }
             if(shape.isShapeClosed) {
                 Polygon(
                     points = shape.points,
-                    fillColor = Color.Transparent,
+                    fillColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
                     strokeColor = MaterialTheme.colorScheme.primary,
                     strokeWidth = 10f,
                     geodesic = true
@@ -79,12 +61,24 @@ fun ShapeEditorMap(
                 )
             }
             else {
-                shape.points.forEachIndexed{ _, coord ->
+                shape.points.forEachIndexed{ index, coord ->
+                    //val markerState = rememberMarkerState(position = coord)
                     MapMarker(
                         state = MarkerState(position = coord),
-                        iconResourceId = R.drawable.ic_point
+                        iconResourceId = R.drawable.ic_point,
+                        draggable = false,
+                        onClick = {
+                            if(index == 0 && shape.pointCount >= 3) onShapeChanged(shape.toMutableShape().closeShape())
+                            true
+                        }
                     )
+                    /*LaunchedEffect(key1 = markerState.position){
+                        onShapeChanged(shape.toMutableShape().movePoint(markerState.position, index))
+                        //if(markerState.)
+                    }*/
                 }
+
+
                 Polyline(
                     points = shape.points,
                     color = MaterialTheme.colorScheme.primary,
@@ -107,7 +101,7 @@ fun ShapeEditorMap(
                 modifier = Modifier.width(100.dp),
                 onClick = {
                     if(shape.pointCount == 1) onShapeChanged(Shape())
-                    else onShapeChanged(shape.toMutableShape().removeLast())
+                    else onShapeChanged(shape.toMutableShape().undo())
                 },
                 enabled = shape.isNotEmpty
             ) {

@@ -4,11 +4,10 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import kotlin.math.*
 
-
 const val earthRadiusM: Double = 6372800.0
 
-fun getZoomIndependentCircleRadius(zoom: Float, scalar: Double = 1.0): Double
-    = scalar * 1000000.0 * (0.5.pow(zoom.toDouble()))
+fun getTouchRadius(zoom: Float, scalar: Double = 1.0): Double
+    = scalar * 2000000.0 * (0.5.pow(zoom.toDouble()))
 
 fun LatLng.distanceTo(point: LatLng): Double {
     val dLat = Math.toRadians(point.latitude - latitude)
@@ -31,6 +30,7 @@ fun getPolygonCenterPoint(polygonPointsList: List<LatLng>): LatLng {
     return bounds.center
 }
 
+/*
 private data class Point(val x: Double, val y: Double)
 fun getClosestPointToASegment(p: LatLng, a: LatLng, b: LatLng): LatLng {
     val ab = Point(b.latitude - a.latitude, b.longitude - a.longitude)
@@ -49,4 +49,4 @@ fun getClosestPointToASegment(p: LatLng, a: LatLng, b: LatLng): LatLng {
     val cY = a.longitude + projectionY
 
     return LatLng(cX, cY)
-}
+}*/

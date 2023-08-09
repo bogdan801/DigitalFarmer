@@ -2,6 +2,7 @@ package com.bogdan801.digitalfarmer.domain.model
 
 import com.bogdan801.digitalfarmer.data.util.getPolygonCenterPoint
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.SphericalUtil
 
 open class ShapeBase(
@@ -15,6 +16,10 @@ open class ShapeBase(
 
     val isEmpty get() = _points.isEmpty()
 
+    val bounds get() = LatLngBounds.Builder().apply {
+        _points.forEach { include(it) }
+    }.build()
+
     val isNotEmpty get() = _points.isNotEmpty()
 
     val pointCount get() = _points.size
@@ -27,7 +32,7 @@ open class ShapeBase(
 }
 
 @Suppress("MemberVisibilityCanBePrivate")
-class MutableShape(shapePoints: List<LatLng>): ShapeBase(shapePoints.toMutableList()){
+class MutableShape(shapePoints: List<LatLng>, private var listOfActions: MutableList<String> = mutableListOf()): ShapeBase(shapePoints.toMutableList()){
     constructor(shapeString: String) : this(mutableListOf()) {
         val coordinates = shapeString.split(";")
         val listOfPoints = mutableListOf<LatLng>()
@@ -42,26 +47,43 @@ class MutableShape(shapePoints: List<LatLng>): ShapeBase(shapePoints.toMutableLi
 
     fun setPoint(point: LatLng): Shape {
         _points.add(point)
+        listOfActions.add("a:${_points.lastIndex}")
         return toShape()
     }
 
     fun insertPoint(point: LatLng, index: Int): Shape {
         _points.add(index, point)
+        listOfActions.add("a:${index}")
         return toShape()
     }
 
-    fun movePoint(newPosition: LatLng, pointIndex: Int): Shape {
+    fun movePoint(newPosition: LatLng, pointIndex: Int, saveForUndo: Boolean = false): Shape {
+        listOfActions.add("m:${pointIndex}:${_points[pointIndex].latitude},${_points[pointIndex].longitude}")
         _points[pointIndex] = newPosition
         return toShape()
     }
 
-    fun removeLast(): Shape {
-        if(_points.isNotEmpty()) _points.removeLast()
+    fun undo(): Shape {
+        if(_points.isNotEmpty() && listOfActions.isNotEmpty()) {
+            val action = listOfActions.last().split(":")
+            when(action[0]){
+                "a" -> _points.removeAt(action[1].toInt())
+                "m" -> {
+                    val coords = action[2].split(",").map { it.toDouble() }
+                    val oldCoordinates = LatLng(coords[0], coords[1])
+                    _points[action[1].toInt()] = oldCoordinates
+                }
+            }
+            listOfActions.removeLast()
+        }
         return toShape()
     }
 
     fun closeShape(): Shape{
-        if(_points.isNotEmpty()) _points.add(_points.first())
+        if(_points.isNotEmpty()) {
+            _points.add(_points.first())
+            listOfActions.add("a:${_points.lastIndex}")
+        }
         return toShape()
     }
 
@@ -73,7 +95,7 @@ class MutableShape(shapePoints: List<LatLng>): ShapeBase(shapePoints.toMutableLi
         }
     }
 
-    fun toShape() = Shape(_points)
+    fun toShape() = Shape(_points, listOfActions)
 
     override fun equals(other: Any?): Boolean {
         return this._points == (other as ShapeBase).points
@@ -84,7 +106,7 @@ class MutableShape(shapePoints: List<LatLng>): ShapeBase(shapePoints.toMutableLi
     }
 }
 
-class Shape(shapePoints: List<LatLng> = listOf()): ShapeBase(shapePoints.toMutableList()){
+class Shape(shapePoints: List<LatLng> = listOf(), private var listOfActions: MutableList<String> = mutableListOf()): ShapeBase(shapePoints.toMutableList()){
     constructor(shapeString: String) : this(mutableListOf()) {
         val coordinates = shapeString.split(";")
         val listOfPoints = mutableListOf<LatLng>()
@@ -94,6 +116,7 @@ class Shape(shapePoints: List<LatLng> = listOf()): ShapeBase(shapePoints.toMutab
                 listOfPoints.add(LatLng(splitCoordinates[0].toDouble(), splitCoordinates[1].toDouble()))
             }
         }
+        _points = listOfPoints
     }
 
     override fun toString() = buildString {
@@ -104,7 +127,7 @@ class Shape(shapePoints: List<LatLng> = listOf()): ShapeBase(shapePoints.toMutab
         }
     }
 
-    fun toMutableShape() = MutableShape(_points)
+    fun toMutableShape() = MutableShape(_points, listOfActions)
 
     override fun equals(other: Any?): Boolean {
         return _points == (other as ShapeBase).points

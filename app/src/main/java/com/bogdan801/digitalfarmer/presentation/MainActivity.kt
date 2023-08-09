@@ -1,4 +1,4 @@
-package com.bogdan801.digitalfarmer
+package com.bogdan801.digitalfarmer.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
