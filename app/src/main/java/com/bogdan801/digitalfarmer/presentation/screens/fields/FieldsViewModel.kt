@@ -3,19 +3,20 @@ package com.bogdan801.digitalfarmer.presentation.screens.fields
 import android.app.Application
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.bogdan801.digitalfarmer.data.login.AuthUIClient
 import com.bogdan801.digitalfarmer.data.remote_db.ActionResult
+import com.bogdan801.digitalfarmer.domain.model.Field
 import com.bogdan801.digitalfarmer.domain.model.Shape
 import com.bogdan801.digitalfarmer.domain.repository.Repository
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ValueEventListener
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,6 +38,37 @@ constructor(
     fun updateShape(newShape: Shape){
         _screenState.update {
             it.copy(shape = newShape)
+        }
+    }
+
+    fun addField(field: Field){
+        when(val result = repository.addField(field)){
+            is ActionResult.Success -> Toast.makeText(context, "Все ок", Toast.LENGTH_LONG).show()
+            is ActionResult.Error -> Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    fun updateField(newField: Field, id: Int){
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                repository.editField(newField, id)
+            }
+            when(result){
+                is ActionResult.Success -> Toast.makeText(context, "Все ок", Toast.LENGTH_LONG).show()
+                is ActionResult.Error -> Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    fun deleteField(id: Int){
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                repository.deleteField(id)
+            }
+            when(result){
+                is ActionResult.Success -> Toast.makeText(context, "Все ок", Toast.LENGTH_LONG).show()
+                is ActionResult.Error -> Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
+            }
         }
     }
 

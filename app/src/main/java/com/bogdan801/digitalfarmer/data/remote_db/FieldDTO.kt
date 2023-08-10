@@ -1,5 +1,6 @@
 package com.bogdan801.digitalfarmer.data.remote_db
 
+import com.bogdan801.digitalfarmer.data.util.toEpoch
 import com.bogdan801.digitalfarmer.data.util.toLocalDateTime
 import com.bogdan801.digitalfarmer.domain.model.Crop
 import com.bogdan801.digitalfarmer.domain.model.Field
@@ -20,3 +21,11 @@ data class FieldDTO(
         harvestDate = harvestDate?.toLocalDateTime()
     )
 }
+
+fun Field.toFieldDTO(): FieldDTO = FieldDTO(
+    name = name,
+    shape = shape.toString(),
+    plantedCrop = plantedCrop?.name,
+    plantDate = plantDate?.toEpoch(),
+    harvestDate = harvestDate?.toEpoch()
+)

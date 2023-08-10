@@ -6,9 +6,9 @@ import com.bogdan801.digitalfarmer.domain.model.Field
 interface Repository {
     fun addField(field: Field): ActionResult<Field>
 
-    fun editField(field: Field, id: Int): ActionResult<Field>
+    suspend fun editField(newField: Field, id: Int): ActionResult<Field>
 
-    fun deleteField(field: Field, id: Int): ActionResult<Field>
+    suspend fun deleteField(id: Int): ActionResult<Field>
 
     fun addFieldsListener(listener: (ActionResult<List<Field>>) -> Unit)
 }

@@ -1,30 +1,66 @@
 package com.bogdan801.digitalfarmer.data.repository
 
-import android.widget.Toast
 import com.bogdan801.digitalfarmer.data.login.AuthUIClient
 import com.bogdan801.digitalfarmer.data.remote_db.ActionResult
 import com.bogdan801.digitalfarmer.data.remote_db.FieldDTO
+import com.bogdan801.digitalfarmer.data.remote_db.toFieldDTO
 import com.bogdan801.digitalfarmer.domain.model.Field
 import com.bogdan801.digitalfarmer.domain.repository.Repository
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.tasks.await
 
 class RepositoryImpl(
     private val databaseReference: DatabaseReference,
     private val authUIClient: AuthUIClient
 ) : Repository {
     override fun addField(field: Field): ActionResult<Field> {
-        TODO("Not yet implemented")
+        val user = authUIClient.getSignedInUser()
+        return if(user!=null){
+            try {
+                databaseReference.child(user.userID).child("fields").push().setValue(field.toFieldDTO())
+                ActionResult.Success(null)
+            } catch (e: Exception){
+                e.printStackTrace()
+                ActionResult.Error(e.message.toString())
+            }
+        } else{
+            ActionResult.Error("User is not logged in!!!")
+        }
     }
 
-    override fun editField(field: Field, id: Int): ActionResult<Field> {
-        TODO("Not yet implemented")
+    override suspend fun editField(newField: Field, id: Int): ActionResult<Field> {
+        val user = authUIClient.getSignedInUser()
+        return if(user!=null){
+            try {
+                val result = databaseReference.child(user.userID).child("fields").get().await()
+                result.children.toList()[id].ref.setValue(newField.toFieldDTO())
+                ActionResult.Success(null)
+            } catch (e: Exception){
+                e.printStackTrace()
+                ActionResult.Error(e.message.toString())
+            }
+        } else{
+            ActionResult.Error("User is not logged in!!!")
+        }
     }
 
-    override fun deleteField(field: Field, id: Int): ActionResult<Field> {
-        TODO("Not yet implemented")
+    override suspend fun deleteField(id: Int): ActionResult<Field> {
+        val user = authUIClient.getSignedInUser()
+        return if(user!=null){
+            try {
+                val result = databaseReference.child(user.userID).child("fields").get().await()
+                result.children.toList()[id].ref.removeValue()
+                ActionResult.Success(null)
+            } catch (e: Exception){
+                e.printStackTrace()
+                ActionResult.Error(e.message.toString())
+            }
+        } else{
+            ActionResult.Error("User is not logged in!!!")
+        }
     }
 
     override fun addFieldsListener(listener: (ActionResult<List<Field>>) -> Unit) {
