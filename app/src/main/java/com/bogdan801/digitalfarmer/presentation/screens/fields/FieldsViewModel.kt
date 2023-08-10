@@ -35,9 +35,9 @@ constructor(
     private val _screenState = MutableStateFlow(FieldsScreenState())
     val screenState = _screenState.asStateFlow()
 
-    fun updateShape(newShape: Shape){
+    fun updateListOfFields(newList: List<Field>){
         _screenState.update {
-            it.copy(shape = newShape)
+            it.copy(listOfFields = newList)
         }
     }
 
@@ -74,28 +74,11 @@ constructor(
 
 
     init {
-        /*val user = authUIClient.getSignedInUser()
-        if(user != null){
-            val listener = object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    val newName = dataSnapshot
-                        .child("nickname").value.toString()
-                    updateDisplayName(newName)
-                }
-
-                override fun onCancelled(databaseError: DatabaseError) {
-                    Toast.makeText(context, "${databaseError.toException().message}", Toast.LENGTH_LONG).show()
-                    databaseError.toException().printStackTrace()
-                }
-            }
-            databaseReference.child(user.userID).addValueEventListener(listener)
-        }*/
         repository.addFieldsListener { result ->
             when(result){
                 is ActionResult.Success -> {
                     val list = result.data
-                    val shape = list!![0].shape
-                    updateShape(shape)
+                    updateListOfFields(list!!)
                 }
                 is ActionResult.Error -> {
                     Toast.makeText(context, "${result.message}", Toast.LENGTH_LONG).show()

@@ -12,10 +12,9 @@ fun LocalDateTime.toEpoch(): Long = toInstant(currentSystemDefault()).toEpochMil
 fun Long.toLocalDateTime(): LocalDateTime
     = Instant.fromEpochMilliseconds(this).toLocalDateTime(currentSystemDefault())
 
+fun LocalDateTime.toFormattedDateString() =
+    "${dayOfMonth.toString().padStart(2, '0')}/${(month.ordinal+1).toString().padStart(2, '0')}/${year}"
 
-fun LocalDate.toFormattedString() =
-    "${dayOfMonth.toString().padStart(2, '0')}.${monthNumber.toString().padStart(2, '0')}.$year"
-
-fun LocalDateTime.toFormattedTime() =
+fun LocalDateTime.toFormattedTimeString() =
     "${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}"
 

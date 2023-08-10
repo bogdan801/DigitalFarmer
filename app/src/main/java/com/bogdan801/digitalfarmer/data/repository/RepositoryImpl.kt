@@ -74,13 +74,11 @@ class RepositoryImpl(
                     }
                     listener(ActionResult.Success(data = listOfFields))
                 }
-
                 override fun onCancelled(databaseError: DatabaseError) {
                     listener(ActionResult.Error(databaseError.toException().message.toString()))
                     databaseError.toException().printStackTrace()
                 }
             }
-
             databaseReference.child(user.userID).child("fields").addValueEventListener(valuesListener)
         }
         else {

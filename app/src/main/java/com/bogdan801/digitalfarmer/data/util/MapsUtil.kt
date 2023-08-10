@@ -1,5 +1,6 @@
 package com.bogdan801.digitalfarmer.data.util
 
+import android.util.Size
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import kotlin.math.*
@@ -28,6 +29,34 @@ fun getPolygonCenterPoint(polygonPointsList: List<LatLng>): LatLng {
     }.build()
 
     return bounds.center
+}
+
+fun getBoundsZoomLevel(bounds: LatLngBounds, mapDim: Size): Float {
+    val worldDim = Size(256, 256)
+    val zoomMax = 21.toDouble();
+
+    fun latRad(lat: Double): Double {
+        val sin = sin(lat * Math.PI / 180);
+        val radX2 = ln((1 + sin) / (1 - sin)) / 2;
+        return max(min(radX2, Math.PI), -Math.PI) /2
+    }
+
+    fun zoom(mapPx: Int, worldPx: Int, fraction: Double): Double {
+        return floor(Math.log(mapPx / worldPx / fraction) / Math.log(2.0))
+    }
+
+    val ne = bounds.northeast;
+    val sw = bounds.southwest;
+
+    val latFraction = (latRad(ne.latitude) - latRad(sw.latitude)) / Math.PI;
+
+    val lngDiff = ne.longitude - sw.longitude;
+    val lngFraction = if (lngDiff < 0) { (lngDiff + 360) / 360 } else { (lngDiff / 360) }
+
+    val latZoom = zoom(mapDim.height, worldDim.height, latFraction);
+    val lngZoom = zoom(mapDim.width, worldDim.width, lngFraction);
+
+    return minOf(latZoom, lngZoom, zoomMax).toFloat()
 }
 
 /*
