@@ -100,7 +100,7 @@ fun FieldsScreen(
             Spacer(modifier = Modifier.height(8.dp))
             Button(
                 onClick = {
-                    viewModel.deleteField(1)
+                    viewModel.deleteField(0)
                 }
             ) {
                 Text("Delete field")

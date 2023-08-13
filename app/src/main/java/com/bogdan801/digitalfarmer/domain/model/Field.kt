@@ -3,6 +3,7 @@ package com.bogdan801.digitalfarmer.domain.model
 import kotlinx.datetime.LocalDateTime
 
 data class Field(
+    val id: String = "",
     val name: String,
     val shape: Shape = Shape(),
     val plantedCrop: Crop? = null,

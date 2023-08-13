@@ -7,6 +7,7 @@ import com.bogdan801.digitalfarmer.domain.model.Field
 import com.bogdan801.digitalfarmer.domain.model.Shape
 
 data class FieldDTO(
+    val id: String = "",
     val name: String = "",
     val shape: String = "",
     val plantedCrop: String? = null,
@@ -14,6 +15,7 @@ data class FieldDTO(
     val harvestDate: Long? = null,
 ){
     fun toField() = Field(
+        id = id,
         name = name,
         shape = Shape(shape),
         plantedCrop = if(plantedCrop == null) null else Crop.valueOf(plantedCrop),
@@ -23,6 +25,7 @@ data class FieldDTO(
 }
 
 fun Field.toFieldDTO(): FieldDTO = FieldDTO(
+    id = id,
     name = name,
     shape = shape.toString(),
     plantedCrop = plantedCrop?.name,

@@ -20,7 +20,9 @@ class RepositoryImpl(
         val user = authUIClient.getSignedInUser()
         return if(user!=null){
             try {
-                databaseReference.child(user.userID).child("fields").push().setValue(field.toFieldDTO())
+                val childReference = databaseReference.child(user.userID).child("fields").push()
+                childReference.setValue(field.copy(id = childReference.key!!).toFieldDTO())
+
                 ActionResult.Success(null)
             } catch (e: Exception){
                 e.printStackTrace()

@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.bogdan801.digitalfarmer.data.login.AuthUIClient
 import com.bogdan801.digitalfarmer.data.remote_db.ActionResult
 import com.bogdan801.digitalfarmer.domain.model.Field
-import com.bogdan801.digitalfarmer.domain.model.Shape
 import com.bogdan801.digitalfarmer.domain.repository.Repository
 import com.google.firebase.database.DatabaseReference
 import dagger.hilt.android.lifecycle.HiltViewModel
