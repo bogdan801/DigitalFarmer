@@ -33,12 +33,15 @@ class RepositoryImpl(
         }
     }
 
-    override suspend fun editField(newField: Field, id: Int): ActionResult<Field> {
+    override suspend fun editField(newField: Field): ActionResult<Field> {
         val user = authUIClient.getSignedInUser()
         return if(user!=null){
             try {
-                val result = databaseReference.child(user.userID).child("fields").get().await()
-                result.children.toList()[id].ref.setValue(newField.toFieldDTO())
+                databaseReference
+                    .child(user.userID)
+                        .child("fields")
+                            .child(newField.id).setValue(newField.toFieldDTO())
+
                 ActionResult.Success(null)
             } catch (e: Exception){
                 e.printStackTrace()
@@ -49,12 +52,31 @@ class RepositoryImpl(
         }
     }
 
-    override suspend fun deleteField(id: Int): ActionResult<Field> {
+    override suspend fun deleteField(index: Int): ActionResult<Field> {
         val user = authUIClient.getSignedInUser()
         return if(user!=null){
             try {
                 val result = databaseReference.child(user.userID).child("fields").get().await()
-                result.children.toList()[id].ref.removeValue()
+                result.children.toList()[index].ref.removeValue()
+                ActionResult.Success(null)
+            } catch (e: Exception){
+                e.printStackTrace()
+                ActionResult.Error(e.message.toString())
+            }
+        } else{
+            ActionResult.Error("User is not logged in!!!")
+        }
+    }
+
+    override fun deleteField(field: Field): ActionResult<Field> {
+        val user = authUIClient.getSignedInUser()
+        return if(user!=null){
+            try {
+                databaseReference
+                    .child(user.userID)
+                        .child("fields")
+                            .child(field.id).removeValue()
+
                 ActionResult.Success(null)
             } catch (e: Exception){
                 e.printStackTrace()

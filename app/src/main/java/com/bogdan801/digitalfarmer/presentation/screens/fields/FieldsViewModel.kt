@@ -47,10 +47,11 @@ constructor(
         }
     }
 
-    fun updateField(newField: Field, id: Int){
+    fun updateField(newField: Field){
+        context.deleteFile(newField.id)
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) {
-                repository.editField(newField, id)
+                repository.editField(newField)
             }
             when(result){
                 is ActionResult.Success -> Toast.makeText(context, "Все ок", Toast.LENGTH_LONG).show()
@@ -60,6 +61,7 @@ constructor(
     }
 
     fun deleteField(id: Int){
+        context.deleteFile(_screenState.value.listOfFields[id].id)
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) {
                 repository.deleteField(id)
@@ -68,6 +70,14 @@ constructor(
                 is ActionResult.Success -> Toast.makeText(context, "Все ок", Toast.LENGTH_LONG).show()
                 is ActionResult.Error -> Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
             }
+        }
+    }
+
+    fun deleteField(field: Field){
+        context.deleteFile(field.id)
+        when(val result = repository.deleteField(field)){
+            is ActionResult.Success -> Toast.makeText(context, "Все ок", Toast.LENGTH_LONG).show()
+            is ActionResult.Error -> Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
         }
     }
 
