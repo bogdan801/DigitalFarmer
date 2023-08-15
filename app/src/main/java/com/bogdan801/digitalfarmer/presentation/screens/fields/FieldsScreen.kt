@@ -8,6 +8,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -17,6 +20,7 @@ import com.bogdan801.digitalfarmer.domain.model.Field
 import com.bogdan801.digitalfarmer.domain.model.Shape
 import com.bogdan801.digitalfarmer.presentation.composables.FieldCard
 import com.bogdan801.digitalfarmer.presentation.navigation.Screen
+import com.bogdan801.digitalfarmer.presentation.util.getDeviceConfiguration
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import java.time.Month
@@ -26,105 +30,116 @@ fun FieldsScreen(
     navController: NavHostController,
     viewModel: FieldsViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+    val config = LocalConfiguration.current
+    val screenConfig by remember { mutableStateOf(getDeviceConfiguration(config)) }
     val scope = rememberCoroutineScope()
-    //val context = LocalContext.current
-    //val userData = remember { viewModel.authUIClient.getSignedInUser() }
     val state by viewModel.screenState.collectAsStateWithLifecycle()
 
-    /*ShapeEditorMap(
-        modifier = Modifier.fillMaxSize(),
-        shape = state.shape,
-        onShapeChanged = { newShape ->
-            viewModel.updateShape(newShape)
-        }
-    )*/
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(modifier = Modifier
-            .fillMaxWidth()
-            .weight(1f)
-            .padding(horizontal = 16.dp)
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ){
             items(
                 items = state.listOfFields,
                 key = {it.id}
             ){field ->
+                var isExpanded by remember { mutableStateOf(field.id == state.listOfFields.last().id) }
                 FieldCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    field = field
+                    modifier = Modifier.widthIn(max = 400.dp),
+                    field = field,
+                    widthRatio = 5.0,
+                    heightRatio = 4.0,
+                    isExpanded = isExpanded,
+                    onExpandClick = {
+                        isExpanded = !isExpanded
+                    }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
 
-        Column(
+        val buttonWidth = 130.dp
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
-                .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .align(Alignment.BottomCenter)
+                .alpha(0.3f)
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Button(
-                onClick = {
-                    viewModel.addField(
-                        Field(
-                            name = "За равцом",
-                            shape = Shape("51.798806,33.053786;51.798843,33.053908;51.798268,33.054454;51.798268,33.054454;51.798806,33.053786"),
-                            plantedCrop = Crop.Potato,
-                            plantDate = LocalDateTime(
-                                year = 2023,
-                                month = Month.APRIL,
-                                dayOfMonth = 26,
-                                hour = 10,
-                                minute = 0
-                            ),
-                            harvestDate = LocalDateTime(
-                                year = 2023,
-                                month = Month.SEPTEMBER,
-                                dayOfMonth = 2,
-                                hour = 14,
-                                minute = 40
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Button(
+                    modifier = Modifier.width(buttonWidth),
+                    onClick = {
+                        viewModel.addField(
+                            Field(
+                                name = "За равцом",
+                                shape = Shape("51.799805,33.053209;51.799795,33.053360;51.799136,33.053382;51.799119, 33.053221;51.799805,33.053209"),
+                                plantedCrop = Crop.Potato,
+                                plantDate = LocalDateTime(
+                                    year = 2023,
+                                    month = Month.APRIL,
+                                    dayOfMonth = 26,
+                                    hour = 10,
+                                    minute = 0
+                                ),
+                                harvestDate = LocalDateTime(
+                                    year = 2023,
+                                    month = Month.SEPTEMBER,
+                                    dayOfMonth = 2,
+                                    hour = 14,
+                                    minute = 40
+                                )
                             )
                         )
-                    )
+                    }
+                ) {
+                    Text("Add field")
                 }
-            ) {
-                Text("Add field")
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                onClick = {
-                    viewModel.updateField(
-                        state.listOfFields[1].copy(
-                            name = "За рівцем",
-                            shape = Shape("52.798806,33.053786;51.798843,33.053908;51.798268,33.054454;51.798268,33.054454;52.798806,33.053786"),
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    modifier = Modifier.width(buttonWidth),
+                    onClick = {
+                        viewModel.updateField(
+                            state.listOfFields[1].copy(
+                                name = "За рівцем",
+                                shape = Shape("52.798806,33.053786;51.798843,33.053908;51.798268,33.054454;51.798268,33.054454;52.798806,33.053786"),
+                            )
                         )
-                    )
+                    }
+                ) {
+                    Text("Update field")
                 }
-            ) {
-                Text("Update field")
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                onClick = {
-                    viewModel.deleteField(state.listOfFields[0])
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Button(
+                    modifier = Modifier.width(buttonWidth),
+                    onClick = {
+                        viewModel.deleteField(state.listOfFields[0])
+                    }
+                ) {
+                    Text("Delete field")
                 }
-            ) {
-                Text("Delete field")
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                onClick = {
-                    scope.launch {
-                        viewModel.authUIClient.signOut()
-                        navController.navigate(Screen.SignInScreen.route){
-                            popUpTo(0)
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    modifier = Modifier.width(buttonWidth),
+                    onClick = {
+                        scope.launch {
+                            viewModel.authUIClient.signOut()
+                            navController.navigate(Screen.SignInScreen.route){
+                                popUpTo(0)
+                            }
                         }
                     }
+                ) {
+                    Text("Log out")
                 }
-            ) {
-                Text("Log out")
             }
         }
     }
