@@ -36,16 +36,6 @@ fun FieldCard(
         var collapsedCardHeight by remember { mutableStateOf(0.dp) }
         val expandedSpacerHeight = ((heightRatio * collapsedCardWidth.value)/widthRatio).dp
 
-        val snapshotWidth by animateDpAsState(
-            targetValue = if(isExpanded) collapsedCardWidth
-                          else ((widthRatio * collapsedCardHeight.value)/heightRatio).dp,
-            label = "puk"
-        )
-        val snapshotHeight by animateDpAsState(
-            targetValue = if(isExpanded) expandedSpacerHeight
-                          else collapsedCardHeight,
-            label = "puk"
-        )
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -80,23 +70,36 @@ fun FieldCard(
                     Text(text = field.harvestDate?.toFormattedDateString() ?: "Not planted yet")
                 }
             }
-            FieldSnapshot(
-                modifier = Modifier
-                    .size(
-                        width = snapshotWidth,
-                        height = snapshotHeight
-                    )
-                    .align(Alignment.TopEnd)
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable(
-                        interactionSource = remember {
-                            MutableInteractionSource()
-                        },
-                        indication = null,
-                        onClick = onExpandClick
-                    ),
-                field = field
-            )
+
+            if(collapsedCardWidth > 0.dp && collapsedCardHeight > 0.dp){
+                val snapshotWidth by animateDpAsState(
+                    targetValue = if(isExpanded) collapsedCardWidth
+                    else ((widthRatio * collapsedCardHeight.value)/heightRatio).dp,
+                    label = "puk"
+                )
+                val snapshotHeight by animateDpAsState(
+                    targetValue = if(isExpanded) expandedSpacerHeight
+                    else collapsedCardHeight,
+                    label = "puk"
+                )
+                FieldSnapshot(
+                    modifier = Modifier
+                        .size(
+                            width = snapshotWidth,
+                            height = snapshotHeight
+                        )
+                        .align(Alignment.TopEnd)
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable(
+                            interactionSource = remember {
+                                MutableInteractionSource()
+                            },
+                            indication = null,
+                            onClick = onExpandClick
+                        ),
+                    field = field
+                )
+            }
         }
     }
 }

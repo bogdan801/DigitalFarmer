@@ -1,11 +1,15 @@
 package com.bogdan801.digitalfarmer.presentation.screens.fields
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -25,6 +29,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import java.time.Month
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FieldsScreen(
     navController: NavHostController,
@@ -38,6 +43,7 @@ fun FieldsScreen(
 
 
     Box(modifier = Modifier.fillMaxSize()) {
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize(),
@@ -48,9 +54,13 @@ fun FieldsScreen(
                 items = state.listOfFields,
                 key = {it.id}
             ){field ->
-                var isExpanded by remember { mutableStateOf(field.id == state.listOfFields.last().id) }
+                var isExpanded by rememberSaveable { mutableStateOf(field.id == state.listOfFields.last().id) }
                 FieldCard(
-                    modifier = Modifier.widthIn(max = 400.dp),
+                    modifier = Modifier
+                        .widthIn(max = 400.dp)
+                        .animateItemPlacement(
+                            animationSpec = tween(durationMillis = 200, easing = LinearEasing)
+                        ),
                     field = field,
                     widthRatio = 5.0,
                     heightRatio = 4.0,
@@ -59,7 +69,7 @@ fun FieldsScreen(
                         isExpanded = !isExpanded
                     }
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
 
