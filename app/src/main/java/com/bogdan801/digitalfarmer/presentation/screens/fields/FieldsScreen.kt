@@ -1,7 +1,5 @@
 package com.bogdan801.digitalfarmer.presentation.screens.fields
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,7 +7,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -29,7 +26,6 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import java.time.Month
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FieldsScreen(
     navController: NavHostController,
@@ -43,7 +39,6 @@ fun FieldsScreen(
 
 
     Box(modifier = Modifier.fillMaxSize()) {
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize(),
@@ -54,19 +49,15 @@ fun FieldsScreen(
                 items = state.listOfFields,
                 key = {it.id}
             ){field ->
-                var isExpanded by rememberSaveable { mutableStateOf(field.id == state.listOfFields.last().id) }
                 FieldCard(
                     modifier = Modifier
-                        .widthIn(max = 400.dp)
-                        .animateItemPlacement(
-                            animationSpec = tween(durationMillis = 200, easing = LinearEasing)
-                        ),
+                        .widthIn(max = 400.dp),
                     field = field,
                     widthRatio = 5.0,
                     heightRatio = 4.0,
-                    isExpanded = isExpanded,
+                    isExpanded = state.cardState[field.id] ?: false,
                     onExpandClick = {
-                        isExpanded = !isExpanded
+                        viewModel.flipCardState(field.id)
                     }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -88,7 +79,7 @@ fun FieldsScreen(
                     onClick = {
                         viewModel.addField(
                             Field(
-                                name = "За равцом",
+                                name = "Город",
                                 shape = Shape("51.799805,33.053209;51.799795,33.053360;51.799136,33.053382;51.799119, 33.053221;51.799805,33.053209"),
                                 plantedCrop = Crop.Potato,
                                 plantDate = LocalDateTime(

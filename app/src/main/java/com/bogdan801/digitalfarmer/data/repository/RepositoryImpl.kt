@@ -21,9 +21,10 @@ class RepositoryImpl(
         return if(user!=null){
             try {
                 val childReference = databaseReference.child(user.userID).child("fields").push()
-                childReference.setValue(field.copy(id = childReference.key!!).toFieldDTO())
+                val fieldToAdd = field.copy(id = childReference.key!!)
+                childReference.setValue(fieldToAdd.toFieldDTO())
 
-                ActionResult.Success(null)
+                ActionResult.Success(fieldToAdd)
             } catch (e: Exception){
                 e.printStackTrace()
                 ActionResult.Error(e.message.toString())

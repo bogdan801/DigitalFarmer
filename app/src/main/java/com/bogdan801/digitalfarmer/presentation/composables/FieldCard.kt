@@ -35,7 +35,6 @@ fun FieldCard(
         var collapsedCardWidth by remember { mutableStateOf(0.dp) }
         var collapsedCardHeight by remember { mutableStateOf(0.dp) }
         val expandedSpacerHeight = ((heightRatio * collapsedCardWidth.value)/widthRatio).dp
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -97,7 +96,8 @@ fun FieldCard(
                             indication = null,
                             onClick = onExpandClick
                         ),
-                    field = field
+                    field = field,
+                    shouldSaveSnapshot = isExpanded
                 )
             }
         }

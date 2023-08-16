@@ -34,15 +34,42 @@ constructor(
     private val _screenState = MutableStateFlow(FieldsScreenState())
     val screenState = _screenState.asStateFlow()
 
-    fun updateListOfFields(newList: List<Field>){
+    private fun updateListOfFields(newList: List<Field>){
         _screenState.update {
             it.copy(listOfFields = newList)
         }
     }
 
+    fun updateCardState(id: String, isExpanded: Boolean){
+        _screenState.update {
+            it.copy(
+                cardState = _screenState.value.cardState.toMutableMap().apply { set(id, isExpanded) }
+            )
+        }
+    }
+
+    private fun collapseAllCards(){
+        _screenState.value.cardState.forEach { (identifier, _) ->
+            updateCardState(identifier, false)
+        }
+    }
+
+    fun flipCardState(id: String){
+        if(_screenState.value.cardState[id] == true){
+            updateCardState(id, false)
+        }
+        else {
+            collapseAllCards()
+            updateCardState(id, true)
+        }
+    }
+
     fun addField(field: Field){
         when(val result = repository.addField(field)){
-            is ActionResult.Success -> Toast.makeText(context, "Все ок", Toast.LENGTH_LONG).show()
+            is ActionResult.Success -> {
+                collapseAllCards()
+                updateCardState(result.data!!.id, true)
+            }
             is ActionResult.Error -> Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
         }
     }

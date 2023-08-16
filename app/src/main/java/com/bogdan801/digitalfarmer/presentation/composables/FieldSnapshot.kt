@@ -22,6 +22,7 @@ import java.io.File
 fun FieldSnapshot(
     modifier: Modifier = Modifier,
     field: Field,
+    shouldSaveSnapshot: Boolean = true,
     onSnapshotGenerated: (snapshot: Bitmap?) -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -77,11 +78,13 @@ fun FieldSnapshot(
                 }
 
                 MapEffect(key1 = isMapLoaded) { map ->
-                    map.snapshot { snapshot ->
-                        if(snapshot!=null && isMapLoaded) {
-                            saveBitmapToPrivateStorage(context, snapshot, field.id)
-                            isPreviewSaved = true
-                            onSnapshotGenerated(readBitmapFromPrivateStorage(context, field.id))
+                    if(shouldSaveSnapshot){
+                        map.snapshot { snapshot ->
+                            if(snapshot!=null && isMapLoaded) {
+                                saveBitmapToPrivateStorage(context, snapshot, field.id)
+                                isPreviewSaved = true
+                                onSnapshotGenerated(readBitmapFromPrivateStorage(context, field.id))
+                            }
                         }
                     }
                 }

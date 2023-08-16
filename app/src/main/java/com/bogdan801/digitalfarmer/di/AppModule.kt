@@ -1,13 +1,11 @@
 package com.bogdan801.digitalfarmer.di
 
 import android.content.Context
-import com.bogdan801.digitalfarmer.BuildConfig
 import com.bogdan801.digitalfarmer.data.login.AuthUIClient
 import com.bogdan801.digitalfarmer.data.repository.RepositoryImpl
 import com.bogdan801.digitalfarmer.domain.repository.Repository
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dagger.Module
