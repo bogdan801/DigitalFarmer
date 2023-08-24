@@ -5,7 +5,8 @@ import com.bogdan801.digitalfarmer.domain.model.Field
 data class FieldsScreenState(
     val currentPage: CurrentPage = CurrentPage.Fields,
     val listOfFields: List<Field> = listOf(),
-    val cardState: Map<String, Boolean> = mutableMapOf()
+    val cardState: Map<String, Boolean> = mutableMapOf(),
+    val loadingCards: Map<String, Boolean> = mutableMapOf()
 )
 
 enum class CurrentPage {

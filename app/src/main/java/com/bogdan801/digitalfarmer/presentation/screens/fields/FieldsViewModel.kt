@@ -50,17 +50,27 @@ constructor(
 
     private fun collapseAllCards(){
         _screenState.value.cardState.forEach { (identifier, _) ->
-            updateCardState(identifier, false)
+            val isCardLoading = _screenState.value.loadingCards[identifier] ?: false
+            if(!isCardLoading) updateCardState(identifier, false)
         }
     }
 
     fun flipCardState(id: String){
         if(_screenState.value.cardState[id] == true){
-            updateCardState(id, false)
+            val isCardLoading = _screenState.value.loadingCards[id] ?: false
+            if(!isCardLoading) updateCardState(id, false)
         }
         else {
             collapseAllCards()
             updateCardState(id, true)
+        }
+    }
+
+    fun setCardLoadingStatus(id: String, status: Boolean){
+        _screenState.update {
+            it.copy(
+                loadingCards = _screenState.value.loadingCards.toMutableMap().apply { set(id, status) }
+            )
         }
     }
 

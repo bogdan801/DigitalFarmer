@@ -23,6 +23,7 @@ fun FieldSnapshot(
     modifier: Modifier = Modifier,
     field: Field,
     shouldSaveSnapshot: Boolean = true,
+    onMapStartedLoading: () -> Unit = {},
     onSnapshotGenerated: (snapshot: Bitmap?) -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -75,12 +76,13 @@ fun FieldSnapshot(
             if(isMapShown){
                 MapEffect(key1 = true){ map ->
                     map.moveCamera(CameraUpdateFactory.newLatLngBounds(field.shape.bounds,50))
+                    onMapStartedLoading()
                 }
 
                 MapEffect(key1 = isMapLoaded) { map ->
-                    if(shouldSaveSnapshot){
+                    if(shouldSaveSnapshot && isMapLoaded){
                         map.snapshot { snapshot ->
-                            if(snapshot!=null && isMapLoaded) {
+                            if(snapshot!=null) {
                                 saveBitmapToPrivateStorage(context, snapshot, field.id)
                                 isPreviewSaved = true
                                 onSnapshotGenerated(readBitmapFromPrivateStorage(context, field.id))

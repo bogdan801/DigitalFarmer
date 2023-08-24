@@ -25,7 +25,9 @@ fun FieldCard(
     widthRatio: Double = 5.0,
     heightRatio: Double = 4.0,
     isExpanded: Boolean = false,
-    onExpandClick: () -> Unit = {}
+    onExpandClick: () -> Unit = {},
+    onMapStartedLoading: () -> Unit = {},
+    onMapFinishedLoading: () -> Unit = {}
 ) {
     val density = LocalDensity.current
     Card(
@@ -58,7 +60,8 @@ fun FieldCard(
                         .fillMaxWidth()
                         .onGloballyPositioned { coords ->
                             collapsedCardWidth = with(density) { coords.size.width.toDp() } + 32.dp
-                            collapsedCardHeight = with(density) { coords.size.height.toDp() } + 32.dp
+                            collapsedCardHeight =
+                                with(density) { coords.size.height.toDp() } + 32.dp
                         }
                 ) {
                     Text(text = field.name, fontSize = 24.sp)
@@ -97,7 +100,9 @@ fun FieldCard(
                             onClick = onExpandClick
                         ),
                     field = field,
-                    shouldSaveSnapshot = isExpanded
+                    shouldSaveSnapshot = isExpanded,
+                    onMapStartedLoading = onMapStartedLoading,
+                    onSnapshotGenerated = { onMapFinishedLoading() }
                 )
             }
         }

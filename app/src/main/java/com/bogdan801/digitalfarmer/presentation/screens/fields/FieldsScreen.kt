@@ -1,6 +1,6 @@
 package com.bogdan801.digitalfarmer.presentation.screens.fields
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -58,6 +58,13 @@ fun FieldsScreen(
                     isExpanded = state.cardState[field.id] ?: false,
                     onExpandClick = {
                         viewModel.flipCardState(field.id)
+                    },
+                    onMapStartedLoading = {
+                        viewModel.setCardLoadingStatus(field.id, true)
+                    },
+                    onMapFinishedLoading = {
+                        viewModel.setCardLoadingStatus(field.id, false)
+                        viewModel.updateCardState(field.id, false)
                     }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
