@@ -24,7 +24,6 @@ class FieldsViewModel
 constructor(
     private val repository: Repository,
     val authUIClient: AuthUIClient,
-    val databaseReference: DatabaseReference,
     application: Application
 ): AndroidViewModel(application) {
     //context
