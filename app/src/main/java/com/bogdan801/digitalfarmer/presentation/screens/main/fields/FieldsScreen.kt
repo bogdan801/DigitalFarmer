@@ -3,15 +3,22 @@ package com.bogdan801.digitalfarmer.presentation.screens.main.fields
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -41,11 +48,32 @@ fun FieldsScreen(
     val scope = rememberCoroutineScope()
     val state by viewModel.screenState.collectAsStateWithLifecycle()
 
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            TopAppBar(title = { Text(text = "Your Fields")})
-        }
+            TopAppBar(
+                title = {
+                    Text(text = "Your Fields")
+                },
+                scrollBehavior = scrollBehavior,
+                actions = {
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(
+                            imageVector = Icons.Default.Sort,
+                            contentDescription = "Filter"
+                        )
+                    }
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "Filter"
+                        )
+                    }
+                }
+            )
+        },
+
     ) { paddingValues ->
         Box(modifier = Modifier
             .fillMaxSize()
@@ -54,7 +82,7 @@ fun FieldsScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 16.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
                 items(
@@ -63,7 +91,7 @@ fun FieldsScreen(
                 ){field ->
                     FieldCard(
                         modifier = Modifier
-                            .widthIn(max = 400.dp),
+                            .widthIn(max = 500.dp),
                         field = field,
                         widthRatio = 5.0,
                         heightRatio = 4.0,

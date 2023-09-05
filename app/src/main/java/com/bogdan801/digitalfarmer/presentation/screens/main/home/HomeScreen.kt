@@ -111,12 +111,7 @@ fun HomeScreen(
             if(screenConfig.type == DeviceType.Tablet){
                 NavigationRail(
                     modifier = Modifier.fillMaxHeight(),
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    header = {
-                        IconButton(onClick = {}) {
-                            Icon(imageVector = Icons.Default.Menu, contentDescription = "")
-                        }
-                    }
+                    containerColor = MaterialTheme.colorScheme.surface
                 ){
                     Spacer(modifier = Modifier.weight(1f))
                     navItems.forEach { item ->
