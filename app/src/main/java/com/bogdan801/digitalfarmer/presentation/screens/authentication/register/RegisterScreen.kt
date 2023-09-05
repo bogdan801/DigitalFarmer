@@ -171,7 +171,7 @@ fun RegisterScreen(
                                 Toast.makeText(context, result.errorMessage, Toast.LENGTH_SHORT).show()
                             }
                             null -> {
-                                navController.navigate(Screen.FieldsScreen.route){
+                                navController.navigate(Screen.HomeScreen.route){
                                     popUpTo(0)
                                 }
                             }

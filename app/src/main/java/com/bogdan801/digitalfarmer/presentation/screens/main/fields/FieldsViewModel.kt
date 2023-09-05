@@ -1,4 +1,4 @@
-package com.bogdan801.digitalfarmer.presentation.screens.fields
+package com.bogdan801.digitalfarmer.presentation.screens.main.fields
 
 import android.app.Application
 import android.widget.Toast
@@ -8,7 +8,6 @@ import com.bogdan801.digitalfarmer.data.login.AuthUIClient
 import com.bogdan801.digitalfarmer.data.remote_db.ActionResult
 import com.bogdan801.digitalfarmer.domain.model.Field
 import com.bogdan801.digitalfarmer.domain.repository.Repository
-import com.google.firebase.database.DatabaseReference
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,18 +39,18 @@ constructor(
         }
     }
 
+    private fun collapseAllLoadedCards(){
+        _screenState.value.cardState.forEach { (identifier, _) ->
+            val isCardLoading = _screenState.value.loadingCards[identifier] ?: false
+            if(!isCardLoading) updateCardState(identifier, false)
+        }
+    }
+
     fun updateCardState(id: String, isExpanded: Boolean){
         _screenState.update {
             it.copy(
                 cardState = _screenState.value.cardState.toMutableMap().apply { set(id, isExpanded) }
             )
-        }
-    }
-
-    private fun collapseAllCards(){
-        _screenState.value.cardState.forEach { (identifier, _) ->
-            val isCardLoading = _screenState.value.loadingCards[identifier] ?: false
-            if(!isCardLoading) updateCardState(identifier, false)
         }
     }
 
@@ -60,7 +60,7 @@ constructor(
             if(!isCardLoading) updateCardState(id, false)
         }
         else {
-            collapseAllCards()
+            collapseAllLoadedCards()
             updateCardState(id, true)
         }
     }
@@ -76,7 +76,7 @@ constructor(
     fun addField(field: Field){
         when(val result = repository.addField(field)){
             is ActionResult.Success -> {
-                collapseAllCards()
+                collapseAllLoadedCards()
                 updateCardState(result.data!!.id, true)
             }
             is ActionResult.Error -> Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
@@ -96,19 +96,6 @@ constructor(
         }
     }
 
-    fun deleteField(id: Int){
-        context.deleteFile(_screenState.value.listOfFields[id].id)
-        viewModelScope.launch {
-            val result = withContext(Dispatchers.IO) {
-                repository.deleteField(id)
-            }
-            when(result){
-                is ActionResult.Success -> Toast.makeText(context, "Все ок", Toast.LENGTH_LONG).show()
-                is ActionResult.Error -> Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
     fun deleteField(field: Field){
         context.deleteFile(field.id)
         when(val result = repository.deleteField(field)){
@@ -117,13 +104,15 @@ constructor(
         }
     }
 
-
     init {
         repository.addFieldsListener { result ->
             when(result){
                 is ActionResult.Success -> {
-                    val list = result.data
-                    updateListOfFields(list!!)
+                    val list = result.data!!
+                    list.forEach { field ->
+                        if(!File(context.filesDir, field.id).exists()) updateCardState(field.id, true)
+                    }
+                    updateListOfFields(list)
                 }
                 is ActionResult.Error -> {
                     Toast.makeText(context, "${result.message}", Toast.LENGTH_LONG).show()

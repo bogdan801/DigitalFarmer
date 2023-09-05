@@ -7,11 +7,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.bogdan801.digitalfarmer.data.datastore.readStringFromDataStore
 import com.bogdan801.digitalfarmer.data.login.AuthUIClient
-import com.bogdan801.digitalfarmer.presentation.screens.fields.FieldsScreen
 import com.bogdan801.digitalfarmer.presentation.screens.authentication.recover_password.RecoverPasswordScreen
 import com.bogdan801.digitalfarmer.presentation.screens.authentication.register.RegisterScreen
 import com.bogdan801.digitalfarmer.presentation.screens.authentication.sign_in.SignInScreen
 import com.bogdan801.digitalfarmer.presentation.screens.authentication.splash.SplashScreen
+import com.bogdan801.digitalfarmer.presentation.screens.main.home.HomeScreen
 import kotlinx.coroutines.runBlocking
 
 @Composable
@@ -21,7 +21,7 @@ fun Navigation(
 ) {
     val context = LocalContext.current
     val startDestination =
-        if(authUIClient.getSignedInUser() != null) Screen.FieldsScreen.route
+        if(authUIClient.getSignedInUser() != null) Screen.HomeScreen.route
         else {
             val showSplashScreen: Boolean? = runBlocking {
                 context.readStringFromDataStore("show_splash_screen")?.toBooleanStrictOrNull()
@@ -50,8 +50,8 @@ fun Navigation(
             RegisterScreen(navController = navController)
         }
 
-        composable(Screen.FieldsScreen.route){
-            FieldsScreen(navController = navController)
+        composable(Screen.HomeScreen.route){
+            HomeScreen(navController = navController)
         }
     }
 }

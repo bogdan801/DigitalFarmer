@@ -54,7 +54,7 @@ fun SignInScreen(
 
     LaunchedEffect(key1 = state.isSignInSuccessful){
         if (state.isSignInSuccessful){
-            navController.navigate(Screen.FieldsScreen.route){
+            navController.navigate(Screen.HomeScreen.route){
                 popUpTo(0)
             }
             viewModel.resetState()
