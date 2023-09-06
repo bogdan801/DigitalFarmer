@@ -2,6 +2,8 @@ package com.bogdan801.digitalfarmer.presentation.screens.main.fields
 
 import android.app.Application
 import android.widget.Toast
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.bogdan801.digitalfarmer.data.login.AuthUIClient
@@ -10,6 +12,7 @@ import com.bogdan801.digitalfarmer.domain.model.Field
 import com.bogdan801.digitalfarmer.domain.repository.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -33,6 +36,26 @@ constructor(
     private val _screenState = MutableStateFlow(FieldsScreenState())
     val screenState = _screenState.asStateFlow()
 
+    val selectedCardsIDs get() = _screenState.value.cardSelectionState.entries.toList().filter { it.value }.map { it.key }
+    val isAnyCardSelected by derivedStateOf {
+        _screenState.value.cardSelectionState.values.contains(true)
+    }
+
+    fun flipCardSelectionState(id: String) {
+        val newValue = !(_screenState.value.cardSelectionState[id] ?: false)
+        _screenState.update {
+            it.copy(cardSelectionState = _screenState.value.cardSelectionState.toMutableMap().apply { set(id, newValue) })
+        }
+    }
+
+    fun unselectAllCards(){
+        if(isAnyCardSelected){
+            _screenState.update {
+                it.copy(cardSelectionState = mapOf())
+            }
+        }
+    }
+
     fun selectSortMethod(method: SortMethod){
         _screenState.update {
             it.copy(currentSortMethod = method)
@@ -52,28 +75,28 @@ constructor(
     }
 
     private fun collapseAllLoadedCards(){
-        _screenState.value.cardState.forEach { (identifier, _) ->
+        _screenState.value.cardExpansionState.forEach { (identifier, _) ->
             val isCardLoading = _screenState.value.loadingCards[identifier] ?: false
-            if(!isCardLoading) updateCardState(identifier, false)
+            if(!isCardLoading) updateCardExpansionState(identifier, false)
         }
     }
 
-    fun updateCardState(id: String, isExpanded: Boolean){
+    fun updateCardExpansionState(id: String, isExpanded: Boolean){
         _screenState.update {
             it.copy(
-                cardState = _screenState.value.cardState.toMutableMap().apply { set(id, isExpanded) }
+                cardExpansionState = _screenState.value.cardExpansionState.toMutableMap().apply { set(id, isExpanded) }
             )
         }
     }
 
-    fun flipCardState(id: String){
-        if(_screenState.value.cardState[id] == true){
+    fun flipCardExpandState(id: String){
+        if(_screenState.value.cardExpansionState[id] == true){
             val isCardLoading = _screenState.value.loadingCards[id] ?: false
-            if(!isCardLoading) updateCardState(id, false)
+            if(!isCardLoading) updateCardExpansionState(id, false)
         }
         else {
             collapseAllLoadedCards()
-            updateCardState(id, true)
+            updateCardExpansionState(id, true)
         }
     }
 
@@ -89,7 +112,7 @@ constructor(
         when(val result = repository.addField(field)){
             is ActionResult.Success -> {
                 collapseAllLoadedCards()
-                updateCardState(result.data!!.id, true)
+                updateCardExpansionState(result.data!!.id, true)
             }
             is ActionResult.Error -> Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
         }
@@ -116,13 +139,29 @@ constructor(
         }
     }
 
+    fun setBackPressTimer() {
+        viewModelScope.launch {
+            _screenState.update {
+                it.copy(
+                    backExitFlag = true
+                )
+            }
+            delay(2000)
+            _screenState.update {
+                it.copy(
+                    backExitFlag = false
+                )
+            }
+        }
+    }
+
     init {
         repository.addFieldsListener { result ->
             when(result){
                 is ActionResult.Success -> {
                     val list = result.data!!
                     list.forEach { field ->
-                        if(!File(context.filesDir, field.id).exists()) updateCardState(field.id, true)
+                        if(!File(context.filesDir, field.id).exists()) updateCardExpansionState(field.id, true)
                     }
                     updateListOfFields(list)
                 }

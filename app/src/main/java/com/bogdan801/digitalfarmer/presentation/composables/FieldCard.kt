@@ -1,11 +1,16 @@
 package com.bogdan801.digitalfarmer.presentation.composables
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.bogdan801.digitalfarmer.data.util.toFormattedDateString
 import com.bogdan801.digitalfarmer.domain.model.Field
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FieldCard(
     modifier: Modifier = Modifier,
@@ -25,13 +31,30 @@ fun FieldCard(
     widthRatio: Double = 5.0,
     heightRatio: Double = 4.0,
     isExpanded: Boolean = false,
-    onExpandClick: () -> Unit = {},
+    isSelected: Boolean = false,
+    onClick: () -> Unit = {},
+    onLongClick: () -> Unit = {},
     onMapStartedLoading: () -> Unit = {},
     onMapFinishedLoading: () -> Unit = {}
 ) {
     val density = LocalDensity.current
+    val backgroundColor by animateColorAsState(
+        targetValue = if(!isSelected) MaterialTheme.colorScheme.surfaceVariant
+                      else MaterialTheme.colorScheme.surface,
+        label = ""
+    )
     Card(
         modifier = modifier
+            .combinedClickable(
+                interactionSource = remember {
+                    MutableInteractionSource()
+                },
+                indication = null,
+                onClick = onClick,
+                onLongClick = onLongClick
+            ),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        border = if(!isSelected) null else BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
     ) {
         var globalWidth by remember { mutableStateOf(0.dp) }
         var collapsedCardWidth by remember { mutableStateOf(0.dp) }
@@ -91,14 +114,7 @@ fun FieldCard(
                             height = snapshotHeight
                         )
                         .align(Alignment.TopEnd)
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable(
-                            interactionSource = remember {
-                                MutableInteractionSource()
-                            },
-                            indication = null,
-                            onClick = onExpandClick
-                        ),
+                        .clip(RoundedCornerShape(12.dp)),
                     field = field,
                     shouldSaveSnapshot = isExpanded,
                     onMapStartedLoading = onMapStartedLoading,

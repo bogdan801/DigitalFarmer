@@ -1,17 +1,21 @@
 package com.bogdan801.digitalfarmer.presentation.screens.main.fields
 
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Sort
-import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -24,10 +28,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -36,16 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.bogdan801.digitalfarmer.domain.model.Crop
-import com.bogdan801.digitalfarmer.domain.model.Field
-import com.bogdan801.digitalfarmer.domain.model.Shape
 import com.bogdan801.digitalfarmer.presentation.composables.FieldCard
-import com.bogdan801.digitalfarmer.presentation.navigation.Screen
 import com.bogdan801.digitalfarmer.presentation.util.containerColor
 import com.bogdan801.digitalfarmer.presentation.util.getDeviceConfiguration
-import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDateTime
-import java.time.Month
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -61,8 +56,24 @@ fun FieldsScreen(
     val state by viewModel.screenState.collectAsStateWithLifecycle()
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    BackHandler(enabled = true) {
+        viewModel.unselectAllCards()
+        if(state.backExitFlag) (context as Activity).finishAndRemoveTask()
+        else Toast.makeText(context, "Tap again to exit", Toast.LENGTH_SHORT).show()
+        viewModel.setBackPressTimer()
+    }
     Scaffold(
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
+            .clickable(
+                interactionSource = remember {
+                    MutableInteractionSource()
+                },
+                indication = null,
+                onClick = {
+                    viewModel.unselectAllCards()
+                }
+            ),
         topBar = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 TopAppBar(
@@ -147,23 +158,28 @@ fun FieldsScreen(
                         field = field,
                         widthRatio = 5.0,
                         heightRatio = 4.0,
-                        isExpanded = state.cardState[field.id] ?: false,
-                        onExpandClick = {
-                            viewModel.flipCardState(field.id)
+                        isExpanded = state.cardExpansionState[field.id] ?: false,
+                        isSelected = state.cardSelectionState[field.id] ?: false,
+                        onClick = {
+                            viewModel.flipCardExpandState(field.id)
+                            viewModel.unselectAllCards()
+                        },
+                        onLongClick = {
+                            viewModel.flipCardSelectionState(field.id)
                         },
                         onMapStartedLoading = {
                             viewModel.setCardLoadingStatus(field.id, true)
                         },
                         onMapFinishedLoading = {
                             viewModel.setCardLoadingStatus(field.id, false)
-                            viewModel.updateCardState(field.id, false)
+                            viewModel.updateCardExpansionState(field.id, false)
                         }
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
 
-            val buttonWidth = 130.dp
+/*            val buttonWidth = 130.dp
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -241,18 +257,8 @@ fun FieldsScreen(
                         Text("Log out")
                     }
                 }
-            }
+            }*/
 
-            /*var selectedId by remember {
-                mutableStateOf(0)
-            }
-            CropSelector(
-                modifier = Modifier.fillMaxWidth(),
-                selectedCropIndex = selectedId,
-                onCropSelected = {
-                    selectedId = it
-                }
-            )*/
         }
 
     }

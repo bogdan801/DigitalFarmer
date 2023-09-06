@@ -6,11 +6,13 @@ import com.bogdan801.digitalfarmer.domain.model.Field
 
 data class FieldsScreenState(
     val listOfFields: List<Field> = listOf(),
-    val cardState: Map<String, Boolean> = mutableMapOf(),
+    val cardExpansionState: Map<String, Boolean> = mutableMapOf(),
+    val cardSelectionState: Map<String, Boolean> = mutableMapOf(),
     val loadingCards: Map<String, Boolean> = mutableMapOf(),
     val currentSortMethod: SortMethod = SortMethod.Name,
     val shouldShowSortingOptions: Boolean = false,
     val lazyColumnState: LazyListState = LazyListState(),
+    val backExitFlag: Boolean = false
 )
 
 
