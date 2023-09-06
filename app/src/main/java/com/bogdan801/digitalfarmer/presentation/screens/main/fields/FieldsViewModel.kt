@@ -33,6 +33,18 @@ constructor(
     private val _screenState = MutableStateFlow(FieldsScreenState())
     val screenState = _screenState.asStateFlow()
 
+    fun selectSortMethod(method: SortMethod){
+        _screenState.update {
+            it.copy(currentSortMethod = method)
+        }
+    }
+
+    fun flipShowSortingOptions(){
+        _screenState.update {
+            it.copy(shouldShowSortingOptions = !_screenState.value.shouldShowSortingOptions)
+        }
+    }
+
     private fun updateListOfFields(newList: List<Field>){
         _screenState.update {
             it.copy(listOfFields = newList)

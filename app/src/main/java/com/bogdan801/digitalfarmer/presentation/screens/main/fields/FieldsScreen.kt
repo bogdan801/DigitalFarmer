@@ -1,5 +1,10 @@
 package com.bogdan801.digitalfarmer.presentation.screens.main.fields
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -7,20 +12,26 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.InputChip
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -30,12 +41,13 @@ import com.bogdan801.digitalfarmer.domain.model.Field
 import com.bogdan801.digitalfarmer.domain.model.Shape
 import com.bogdan801.digitalfarmer.presentation.composables.FieldCard
 import com.bogdan801.digitalfarmer.presentation.navigation.Screen
+import com.bogdan801.digitalfarmer.presentation.util.containerColor
 import com.bogdan801.digitalfarmer.presentation.util.getDeviceConfiguration
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import java.time.Month
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun FieldsScreen(
     modifier: Modifier = Modifier,
@@ -52,34 +64,74 @@ fun FieldsScreen(
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = "Your Fields")
-                },
-                scrollBehavior = scrollBehavior,
-                actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            imageVector = Icons.Default.Sort,
-                            contentDescription = "Filter"
-                        )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                TopAppBar(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = {
+                        Text(text = "Your Fields")
+                    },
+                    scrollBehavior = scrollBehavior,
+                    actions = {
+                        IconButton(
+                            onClick = {
+                                viewModel.flipShowSortingOptions()
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Sort,
+                                contentDescription = "Sort options"
+                            )
+                        }
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "Options"
+                            )
+                        }
                     }
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "Filter"
-                        )
+                )
+                AnimatedVisibility(visible = state.shouldShowSortingOptions) {
+                    val colorTransitionFraction = scrollBehavior.state.overlappedFraction
+                    val fraction = if (colorTransitionFraction > 0.01f) 1f else 0f
+                    val appBarContainerColor by animateColorAsState(
+                        targetValue = containerColor(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp), fraction),
+                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow), label = ""
+                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(appBarContainerColor)
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(text = "Sort fields by")
+                        FlowRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp, bottom = 8.dp)
+                        ){
+                            SortMethod.values().forEach { method ->
+                                InputChip(
+                                    selected = state.currentSortMethod == method,
+                                    onClick = { viewModel.selectSortMethod(method) },
+                                    label = { Text(stringResource(id = method.localeStringID)) }
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                            }
+                        }
+                        if(fraction == 0f) Divider()
                     }
                 }
-            )
-        },
+            }
 
+        }
     ) { paddingValues ->
         Box(modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues)
         ) {
             LazyColumn(
+                state = state.lazyColumnState,
                 modifier = Modifier
                     .fillMaxSize(),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),

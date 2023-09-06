@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">DigitalFarmer</string>
     <string name="web_client_id">171700935839-tjfb9fjlnfpltugspla5u3v0uf8lme9n.apps.googleusercontent.com</string>
+    <string name="sort_name">Name</string>
+    <string name="sort_crop">Crop</string>
+    <string name="sort_planting_date">Planting date</string>
+    <string name="sort_harvest_date">Harvest date</string>
 </resources>

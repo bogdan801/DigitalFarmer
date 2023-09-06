@@ -17,9 +17,9 @@ constructor(
     private val _screenState = MutableStateFlow(HomeScreenState())
     val screenState = _screenState.asStateFlow()
 
-    fun setCurrentPage(page: CurrentPage){
+    /*fun setCurrentPage(page: CurrentPage){
         _screenState.update {
             _screenState.value.copy(currentPage = page)
         }
-    }
+    }*/
 }
