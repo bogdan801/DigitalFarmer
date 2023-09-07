@@ -3,7 +3,9 @@ package com.bogdan801.digitalfarmer.presentation.screens.main.fields
 import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -14,10 +16,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
@@ -38,11 +43,18 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.bogdan801.digitalfarmer.domain.model.Crop
+import com.bogdan801.digitalfarmer.domain.model.Field
+import com.bogdan801.digitalfarmer.domain.model.Shape
 import com.bogdan801.digitalfarmer.presentation.composables.FieldCard
 import com.bogdan801.digitalfarmer.presentation.util.containerColor
 import com.bogdan801.digitalfarmer.presentation.util.getDeviceConfiguration
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.Month
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
+    ExperimentalAnimationApi::class
+)
 @Composable
 fun FieldsScreen(
     modifier: Modifier = Modifier,
@@ -83,16 +95,36 @@ fun FieldsScreen(
                     },
                     scrollBehavior = scrollBehavior,
                     actions = {
-                        IconButton(
-                            onClick = {
-                                viewModel.flipShowSortingOptions()
+                        AnimatedContent(
+                            targetState = viewModel.isAnyCardSelected,
+                            label = ""
+                        ) {isAnyCardSelected ->
+                            if(isAnyCardSelected){
+                                IconButton(
+                                    onClick = {
+                                        viewModel.deleteSelectedFields()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Delete selected fields"
+                                    )
+                                }
                             }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Sort,
-                                contentDescription = "Sort options"
-                            )
+                            else {
+                                IconButton(
+                                    onClick = {
+                                        viewModel.flipShowSortingOptions()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Sort,
+                                        contentDescription = "Sort options"
+                                    )
+                                }
+                            }
                         }
+
                         IconButton(onClick = { /*TODO*/ }) {
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
@@ -135,6 +167,43 @@ fun FieldsScreen(
                 }
             }
 
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    viewModel.addField(
+                        Field(
+                            name = "Город",
+                            shape = Shape("51.799805,33.053209;51.799795,33.053360;51.799136,33.053382;51.799119, 33.053221;51.799805,33.053209"),
+                            plantedCrop = Crop.Potato,
+                            plantDate = LocalDateTime(
+                                year = 2023,
+                                month = Month.APRIL,
+                                dayOfMonth = 26,
+                                hour = 10,
+                                minute = 0
+                            ),
+                            harvestDate = LocalDateTime(
+                                year = 2023,
+                                month = Month.SEPTEMBER,
+                                dayOfMonth = 2,
+                                hour = 14,
+                                minute = 40
+                            )
+                        )
+                    )
+                }
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(imageVector = Icons.Default.Edit, contentDescription = "")
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text("Add field")
+                }
+            }
         }
     ) { paddingValues ->
         Box(modifier = Modifier
@@ -166,6 +235,7 @@ fun FieldsScreen(
                         },
                         onLongClick = {
                             viewModel.flipCardSelectionState(field.id)
+                            viewModel.flipShowSortingOptions(false)
                         },
                         onMapStartedLoading = {
                             viewModel.setCardLoadingStatus(field.id, true)

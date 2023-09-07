@@ -69,14 +69,14 @@ class RepositoryImpl(
         }
     }
 
-    override fun deleteField(field: Field): ActionResult<Field> {
+    override fun deleteField(id: String): ActionResult<Field> {
         val user = authUIClient.getSignedInUser()
         return if(user!=null){
             try {
                 databaseReference
                     .child(user.userID)
                         .child("fields")
-                            .child(field.id).removeValue()
+                            .child(id).removeValue()
 
                 ActionResult.Success(null)
             } catch (e: Exception){

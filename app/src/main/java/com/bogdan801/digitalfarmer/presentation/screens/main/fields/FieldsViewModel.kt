@@ -36,10 +36,9 @@ constructor(
     private val _screenState = MutableStateFlow(FieldsScreenState())
     val screenState = _screenState.asStateFlow()
 
-    val selectedCardsIDs get() = _screenState.value.cardSelectionState.entries.toList().filter { it.value }.map { it.key }
-    val isAnyCardSelected by derivedStateOf {
-        _screenState.value.cardSelectionState.values.contains(true)
-    }
+    private val selectedCardsIDs get() = _screenState.value.cardSelectionState.entries.toList().filter { it.value }.map { it.key }
+
+    val isAnyCardSelected get() = _screenState.value.cardSelectionState.values.contains(true)
 
     fun flipCardSelectionState(id: String) {
         val newValue = !(_screenState.value.cardSelectionState[id] ?: false)
@@ -62,9 +61,9 @@ constructor(
         }
     }
 
-    fun flipShowSortingOptions(){
+    fun flipShowSortingOptions(shouldShow: Boolean? = null){
         _screenState.update {
-            it.copy(shouldShowSortingOptions = !_screenState.value.shouldShowSortingOptions)
+            it.copy(shouldShowSortingOptions = shouldShow ?: !_screenState.value.shouldShowSortingOptions)
         }
     }
 
@@ -131,13 +130,22 @@ constructor(
         }
     }
 
-    fun deleteField(field: Field){
-        context.deleteFile(field.id)
-        when(val result = repository.deleteField(field)){
-            is ActionResult.Success -> Toast.makeText(context, "Все ок", Toast.LENGTH_LONG).show()
+    fun deleteField(id: String){
+        context.deleteFile(id)
+        when(val result = repository.deleteField(id)){
+            is ActionResult.Success -> {}
             is ActionResult.Error -> Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
         }
     }
+
+    fun deleteSelectedFields() {
+        val selectedIDs = selectedCardsIDs
+        selectedIDs.forEach { id ->
+            deleteField(id)
+        }
+        unselectAllCards()
+    }
+
 
     fun setBackPressTimer() {
         viewModelScope.launch {
@@ -154,6 +162,7 @@ constructor(
             }
         }
     }
+
 
     init {
         repository.addFieldsListener { result ->

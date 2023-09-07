@@ -9,7 +9,7 @@ interface Repository {
     suspend fun editField(newField: Field): ActionResult<Field>
 
     suspend fun deleteField(index: Int): ActionResult<Field>
-    fun deleteField(field: Field): ActionResult<Field>
+    fun deleteField(id: String): ActionResult<Field>
 
     fun addFieldsListener(listener: (ActionResult<List<Field>>) -> Unit)
 }

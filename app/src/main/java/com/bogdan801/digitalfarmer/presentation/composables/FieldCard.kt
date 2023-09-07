@@ -54,7 +54,7 @@ fun FieldCard(
                 onLongClick = onLongClick
             ),
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        border = if(!isSelected) null else BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+        border = if(!isSelected) null else BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary)
     ) {
         var globalWidth by remember { mutableStateOf(0.dp) }
         var collapsedCardWidth by remember { mutableStateOf(0.dp) }
