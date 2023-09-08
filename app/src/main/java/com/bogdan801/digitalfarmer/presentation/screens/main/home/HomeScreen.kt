@@ -106,7 +106,7 @@ fun HomeScreen(
                                 }
                             },
                             icon = {
-                                if(screenState.currentPage == item.page){
+                                if(currentRoute == item.page.name){
                                     Icon(
                                         painter = painterResource(id = item.selectedIconID),
                                         contentDescription = "Fields page icon"
@@ -154,7 +154,7 @@ fun HomeScreen(
                                 }
                             },
                             icon = {
-                                if(screenState.currentPage == item.page){
+                                if(currentRoute == item.page.name){
                                     Icon(
                                         painter = painterResource(id = item.selectedIconID),
                                         contentDescription = "Fields page icon"

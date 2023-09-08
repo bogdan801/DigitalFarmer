@@ -5,10 +5,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import com.bogdan801.digitalfarmer.R
 import com.bogdan801.digitalfarmer.data.util.readBitmapFromPrivateStorage
 import com.bogdan801.digitalfarmer.data.util.saveBitmapToPrivateStorage
 import com.bogdan801.digitalfarmer.domain.model.Field
@@ -64,6 +66,20 @@ fun FieldSnapshot(
                     strokeWidth = 10f,
                     geodesic = true
                 )
+                if(field.plantedCrop != null){
+                    MapMarker(
+                        state = rememberMarkerState(position = field.shape.center),
+                        iconResourceId = R.drawable.ic_circle,
+                        tint = MaterialTheme.colorScheme.primary,
+                        scale = 3f
+                    )
+                    MapMarker(
+                        state = rememberMarkerState(position = field.shape.center),
+                        iconResourceId = field.plantedCrop.drawableID,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        scale = 2f
+                    )
+                }
             }
             else {
                 Polyline(

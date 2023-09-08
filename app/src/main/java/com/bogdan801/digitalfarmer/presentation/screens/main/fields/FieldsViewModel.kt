@@ -2,8 +2,6 @@ package com.bogdan801.digitalfarmer.presentation.screens.main.fields
 
 import android.app.Application
 import android.widget.Toast
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.bogdan801.digitalfarmer.data.login.AuthUIClient

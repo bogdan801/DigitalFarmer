@@ -51,6 +51,7 @@ import com.bogdan801.digitalfarmer.presentation.util.containerColor
 import com.bogdan801.digitalfarmer.presentation.util.getDeviceConfiguration
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
+import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
     ExperimentalAnimationApi::class
@@ -175,7 +176,7 @@ fun FieldsScreen(
                         Field(
                             name = "Город",
                             shape = Shape("51.799805,33.053209;51.799795,33.053360;51.799136,33.053382;51.799119, 33.053221;51.799805,33.053209"),
-                            plantedCrop = Crop.Potato,
+                            plantedCrop = Crop.values()[Random.nextInt(Crop.values().size)],
                             plantDate = LocalDateTime(
                                 year = 2023,
                                 month = Month.APRIL,
