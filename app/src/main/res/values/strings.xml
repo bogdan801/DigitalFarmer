@@ -5,4 +5,5 @@
     <string name="sort_crop">Crop</string>
     <string name="sort_planting_date">Planting date</string>
     <string name="sort_harvest_date">Harvest date</string>
+    <string name="sort_area">Area</string>
 </resources>

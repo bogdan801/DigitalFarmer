@@ -40,6 +40,7 @@ constructor(
 
     fun flipCardSelectionState(id: String) {
         val newValue = !(_screenState.value.cardSelectionState[id] ?: false)
+        collapseAllLoadedCards()
         _screenState.update {
             it.copy(cardSelectionState = _screenState.value.cardSelectionState.toMutableMap().apply { set(id, newValue) })
         }
@@ -56,6 +57,12 @@ constructor(
     fun selectSortMethod(method: SortMethod){
         _screenState.update {
             it.copy(currentSortMethod = method)
+        }
+    }
+
+    fun setFABState(isVisible: Boolean){
+        _screenState.update {
+            it.copy(isFABVisible = isVisible)
         }
     }
 
@@ -79,6 +86,7 @@ constructor(
     }
 
     fun updateCardExpansionState(id: String, isExpanded: Boolean){
+        if(!isExpanded) setFABState(true)
         _screenState.update {
             it.copy(
                 cardExpansionState = _screenState.value.cardExpansionState.toMutableMap().apply { set(id, isExpanded) }

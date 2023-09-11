@@ -12,12 +12,14 @@ data class FieldsScreenState(
     val currentSortMethod: SortMethod = SortMethod.Name,
     val shouldShowSortingOptions: Boolean = false,
     val lazyColumnState: LazyListState = LazyListState(),
-    val backExitFlag: Boolean = false
+    val backExitFlag: Boolean = false,
+    val isFABVisible: Boolean = true
 )
 
 
 enum class SortMethod(val localeStringID: Int){
     Name(R.string.sort_name),
+    Area(R.string.sort_area),
     Crop(R.string.sort_crop),
     PlantingDate(R.string.sort_planting_date),
     HarvestDate(R.string.sort_harvest_date)
