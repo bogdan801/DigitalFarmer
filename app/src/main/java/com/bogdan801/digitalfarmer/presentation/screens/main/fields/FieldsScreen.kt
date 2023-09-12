@@ -23,6 +23,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -41,7 +43,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -51,9 +52,9 @@ import androidx.navigation.NavHostController
 import com.bogdan801.digitalfarmer.domain.model.Crop
 import com.bogdan801.digitalfarmer.domain.model.Field
 import com.bogdan801.digitalfarmer.domain.model.Shape
+import com.bogdan801.digitalfarmer.presentation.composables.AlertDialogBox
 import com.bogdan801.digitalfarmer.presentation.composables.FieldCard
 import com.bogdan801.digitalfarmer.presentation.util.containerColor
-import com.bogdan801.digitalfarmer.presentation.util.getDeviceConfiguration
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
 import kotlin.random.Random
@@ -68,18 +69,7 @@ fun FieldsScreen(
     viewModel: FieldsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val config = LocalConfiguration.current
-    val screenConfig by remember { mutableStateOf(getDeviceConfiguration(config)) }
-    val scope = rememberCoroutineScope()
     val state by viewModel.screenState.collectAsStateWithLifecycle()
-
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    BackHandler(enabled = true) {
-        viewModel.unselectAllCards()
-        if(state.backExitFlag) (context as Activity).finishAndRemoveTask()
-        else Toast.makeText(context, "Tap again to exit", Toast.LENGTH_SHORT).show()
-        viewModel.setBackPressTimer()
-    }
 
     // Visibility for FAB
     val nestedScrollConnection = remember {
@@ -99,6 +89,8 @@ fun FieldsScreen(
             }
         }
     }
+
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
         modifier = modifier
             .nestedScroll(scrollBehavior.nestedScrollConnection)
@@ -113,6 +105,7 @@ fun FieldsScreen(
             ),
         topBar = {
             Column(modifier = Modifier.fillMaxWidth()) {
+                //top app bar
                 TopAppBar(
                     modifier = Modifier.fillMaxWidth(),
                     title = {
@@ -150,15 +143,38 @@ fun FieldsScreen(
                             }
                         }
 
-                        IconButton(onClick = { /*TODO*/ }) {
+                        //dropdown menu states
+                        var showDropDownMenu by remember {
+                            mutableStateOf(false)
+                        }
+                        IconButton(
+                            onClick = {
+                                showDropDownMenu = true
+                            }
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
                                 contentDescription = "Options"
                             )
+                            DropdownMenu(
+                                expanded = showDropDownMenu,
+                                onDismissRequest = { showDropDownMenu = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text("Delete all fields")
+                                    },
+                                    onClick = {
+                                        showDropDownMenu = false
+                                        viewModel.setDeleteAllDialogBoxState(true)
+                                    }
+                                )
+                            }
                         }
                     }
                 )
-                AnimatedVisibility(visible = state.shouldShowSortingOptions) {
+                //sorting bar
+                AnimatedVisibility(visible = state.showSortingOptions) {
                     val colorTransitionFraction = scrollBehavior.state.overlappedFraction
                     val fraction = if (colorTransitionFraction > 0.01f) 1f else 0f
                     val appBarContainerColor by animateColorAsState(
@@ -195,7 +211,7 @@ fun FieldsScreen(
         },
         floatingActionButton = {
             AnimatedVisibility(
-                visible = state.isFABVisible,
+                visible = state.showFAB,
                 enter = slideInVertically(initialOffsetY = { it * 2 }),
                 exit = slideOutVertically(targetOffsetY = { it * 2 }),
             ) {
@@ -286,6 +302,22 @@ fun FieldsScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
+            AlertDialogBox(
+                isShown = state.showDeleteDialog,
+                onDismissRequest = { viewModel.setDeleteAllDialogBoxState(false) },
+                onConfirmation = {
+                    viewModel.setDeleteAllDialogBoxState(false)
+                    viewModel.deleteAllFields()
+                },
+                dialogTitle = "Delete all fields?",
+                dialogText = "Are you sure you want to delete all fields? Deleted fields can't be restored"
+            )
         }
+    }
+    BackHandler(enabled = true) {
+        viewModel.unselectAllCards()
+        if(state.backExitFlag) (context as Activity).finishAndRemoveTask()
+        else Toast.makeText(context, "Tap again to exit", Toast.LENGTH_SHORT).show()
+        viewModel.setBackPressTimer()
     }
 }

@@ -31,9 +31,11 @@ constructor(
     private val context
         get() = getApplication<Application>()
 
+    //screen state
     private val _screenState = MutableStateFlow(FieldsScreenState())
     val screenState = _screenState.asStateFlow()
 
+    //cards selection
     private val selectedCardsIDs get() = _screenState.value.cardSelectionState.entries.toList().filter { it.value }.map { it.key }
 
     val isAnyCardSelected get() = _screenState.value.cardSelectionState.values.contains(true)
@@ -54,30 +56,34 @@ constructor(
         }
     }
 
+    //cards sorting
     fun selectSortMethod(method: SortMethod){
         _screenState.update {
             it.copy(currentSortMethod = method)
         }
     }
 
-    fun setFABState(isVisible: Boolean){
-        _screenState.update {
-            it.copy(isFABVisible = isVisible)
-        }
-    }
-
     fun flipShowSortingOptions(shouldShow: Boolean? = null){
         _screenState.update {
-            it.copy(shouldShowSortingOptions = shouldShow ?: !_screenState.value.shouldShowSortingOptions)
+            it.copy(showSortingOptions = shouldShow ?: !_screenState.value.showSortingOptions)
         }
     }
 
-    private fun updateListOfFields(newList: List<Field>){
+    //floating action button
+    fun setFABState(isVisible: Boolean){
         _screenState.update {
-            it.copy(listOfFields = newList)
+            it.copy(showFAB = isVisible)
         }
     }
 
+    //dialog box logic
+    fun setDeleteAllDialogBoxState(isVisible: Boolean){
+        _screenState.update {
+            it.copy(showDeleteDialog = isVisible)
+        }
+    }
+
+    //cards expansion and loading state logic
     private fun collapseAllLoadedCards(){
         _screenState.value.cardExpansionState.forEach { (identifier, _) ->
             val isCardLoading = _screenState.value.loadingCards[identifier] ?: false
@@ -86,7 +92,6 @@ constructor(
     }
 
     fun updateCardExpansionState(id: String, isExpanded: Boolean){
-        if(!isExpanded) setFABState(true)
         _screenState.update {
             it.copy(
                 cardExpansionState = _screenState.value.cardExpansionState.toMutableMap().apply { set(id, isExpanded) }
@@ -97,7 +102,10 @@ constructor(
     fun flipCardExpandState(id: String){
         if(_screenState.value.cardExpansionState[id] == true){
             val isCardLoading = _screenState.value.loadingCards[id] ?: false
-            if(!isCardLoading) updateCardExpansionState(id, false)
+            if(!isCardLoading) {
+                setFABState(true)
+                updateCardExpansionState(id, false)
+            }
         }
         else {
             collapseAllLoadedCards()
@@ -110,6 +118,13 @@ constructor(
             it.copy(
                 loadingCards = _screenState.value.loadingCards.toMutableMap().apply { set(id, status) }
             )
+        }
+    }
+
+    //field control
+    private fun updateListOfFields(newList: List<Field>){
+        _screenState.update {
+            it.copy(listOfFields = newList)
         }
     }
 
@@ -136,12 +151,20 @@ constructor(
         }
     }
 
-    fun deleteField(id: String){
+    private fun deleteField(id: String){
         context.deleteFile(id)
         when(val result = repository.deleteField(id)){
             is ActionResult.Success -> {}
             is ActionResult.Error -> Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
         }
+    }
+
+    fun deleteAllFields(){
+        _screenState.value.listOfFields.forEach { field ->
+            deleteField(field.id)
+        }
+        unselectAllCards()
+        setFABState(true)
     }
 
     fun deleteSelectedFields() {
@@ -152,7 +175,7 @@ constructor(
         unselectAllCards()
     }
 
-
+    //back press logic
     fun setBackPressTimer() {
         viewModelScope.launch {
             _screenState.update {
@@ -168,7 +191,6 @@ constructor(
             }
         }
     }
-
 
     init {
         repository.addFieldsListener { result ->

@@ -10,10 +10,11 @@ data class FieldsScreenState(
     val cardSelectionState: Map<String, Boolean> = mutableMapOf(),
     val loadingCards: Map<String, Boolean> = mutableMapOf(),
     val currentSortMethod: SortMethod = SortMethod.Name,
-    val shouldShowSortingOptions: Boolean = false,
     val lazyColumnState: LazyListState = LazyListState(),
     val backExitFlag: Boolean = false,
-    val isFABVisible: Boolean = true
+    val showSortingOptions: Boolean = false,
+    val showFAB: Boolean = true,
+    val showDeleteDialog: Boolean = false
 )
 
 
