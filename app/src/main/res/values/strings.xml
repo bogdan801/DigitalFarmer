@@ -6,4 +6,15 @@
     <string name="sort_planting_date">Planting date</string>
     <string name="sort_harvest_date">Harvest date</string>
     <string name="sort_area">Area</string>
+    <string name="crop_wheat">Wheat</string>
+    <string name="crop_rye">Rye</string>
+    <string name="crop_oat">Oat</string>
+    <string name="crop_buckwheat">Buckwheat</string>
+    <string name="crop_corn">Corn</string>
+    <string name="crop_sunflower">Sunflower</string>
+    <string name="crop_potato">Potato</string>
+    <string name="crop_rapeseed">Rapeseed</string>
+    <string name="crop_soy">Soy</string>
+    <string name="crop_rice">Rice</string>
+    <string name="crop_beetroot">Beetroot</string>
 </resources>

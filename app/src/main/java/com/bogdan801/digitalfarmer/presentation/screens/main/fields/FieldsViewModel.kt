@@ -5,8 +5,9 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.bogdan801.digitalfarmer.data.login.AuthUIClient
-import com.bogdan801.digitalfarmer.data.remote_db.ActionResult
+import com.bogdan801.digitalfarmer.domain.util.ActionResult
 import com.bogdan801.digitalfarmer.domain.model.Field
+import com.bogdan801.digitalfarmer.domain.model.SortMethod
 import com.bogdan801.digitalfarmer.domain.repository.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
@@ -36,7 +38,8 @@ constructor(
     val screenState = _screenState.asStateFlow()
 
     //cards selection
-    private val selectedCardsIDs get() = _screenState.value.cardSelectionState.entries.toList().filter { it.value }.map { it.key }
+    private val selectedCardsIDs get() =
+        _screenState.value.cardSelectionState.entries.toList().filter { it.value }.map { it.key }
 
     val isAnyCardSelected get() = _screenState.value.cardSelectionState.values.contains(true)
 
@@ -44,7 +47,10 @@ constructor(
         val newValue = !(_screenState.value.cardSelectionState[id] ?: false)
         collapseAllLoadedCards()
         _screenState.update {
-            it.copy(cardSelectionState = _screenState.value.cardSelectionState.toMutableMap().apply { set(id, newValue) })
+            it.copy(
+                cardSelectionState = _screenState.value.cardSelectionState
+                                        .toMutableMap()
+                                        .apply { set(id, newValue) })
         }
     }
 
@@ -57,10 +63,51 @@ constructor(
     }
 
     //cards sorting
-    fun selectSortMethod(method: SortMethod){
-        _screenState.update {
-            it.copy(currentSortMethod = method)
+    fun selectSortMethod(method: SortMethod, doNotSort: Boolean = false){
+        viewModelScope.launch {
+            repository.setSortingMethodSetting(method)
         }
+        if(doNotSort){
+            _screenState.update {
+                it.copy(
+                    currentSortMethod = method
+                )
+            }
+        }
+        else{
+            _screenState.update {
+                it.copy(
+                    currentSortMethod = method,
+                    listOfFields = sortFieldsList(_screenState.value.listOfFields, method)
+                )
+            }
+        }
+    }
+
+    private fun sortFieldsList(list: List<Field>, sortMethod: SortMethod): List<Field> {
+        val listToSort = list.toMutableList()
+        when(sortMethod){
+            SortMethod.Name -> {
+                listToSort.sortBy { it.name }
+            }
+            SortMethod.Area -> {
+                listToSort.sortByDescending { it.shape.area }
+            }
+            SortMethod.Crop -> {
+                listToSort.sortBy {
+                    if(it.plantedCrop != null)
+                        context.getString(it.plantedCrop.localizedNameID)
+                    else null
+                }
+            }
+            SortMethod.PlantingDate -> {
+                listToSort.sortBy { it.plantDate }
+            }
+            SortMethod.HarvestDate -> {
+                listToSort.sortBy { it.harvestDate }
+            }
+        }
+        return listToSort
     }
 
     fun flipShowSortingOptions(shouldShow: Boolean? = null){
@@ -94,7 +141,9 @@ constructor(
     fun updateCardExpansionState(id: String, isExpanded: Boolean){
         _screenState.update {
             it.copy(
-                cardExpansionState = _screenState.value.cardExpansionState.toMutableMap().apply { set(id, isExpanded) }
+                cardExpansionState = _screenState.value.cardExpansionState
+                                         .toMutableMap()
+                                         .apply { set(id, isExpanded) }
             )
         }
     }
@@ -116,7 +165,9 @@ constructor(
     fun setCardLoadingStatus(id: String, status: Boolean){
         _screenState.update {
             it.copy(
-                loadingCards = _screenState.value.loadingCards.toMutableMap().apply { set(id, status) }
+                loadingCards = _screenState.value.loadingCards
+                                   .toMutableMap()
+                                   .apply { set(id, status) }
             )
         }
     }
@@ -193,12 +244,20 @@ constructor(
     }
 
     init {
+        runBlocking {
+            selectSortMethod(
+                repository.getSortingMethodSetting() ?: SortMethod.Name,
+                doNotSort = true
+            )
+        }
         repository.addFieldsListener { result ->
             when(result){
                 is ActionResult.Success -> {
-                    val list = result.data!!
+                    val list = sortFieldsList(result.data!!, _screenState.value.currentSortMethod)
+
                     list.forEach { field ->
-                        if(!File(context.filesDir, field.id).exists()) updateCardExpansionState(field.id, true)
+                        if(!File(context.filesDir, field.id).exists())
+                            updateCardExpansionState(field.id, true)
                     }
                     updateListOfFields(list)
                 }

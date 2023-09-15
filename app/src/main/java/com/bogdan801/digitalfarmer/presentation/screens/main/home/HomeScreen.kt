@@ -185,7 +185,7 @@ fun HomeScreen(
                     composable(CurrentPage.Fields.name){
                         FieldsScreen(
                             modifier = Modifier.fillMaxSize(),
-                            navController = subScreenNavController
+                            //navController = subScreenNavController
                         )
                     }
 

@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -115,7 +116,11 @@ fun FieldCard(
                     Text(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(end = if (!isExpanded) ((widthRatio * collapsedCardHeight.value) / heightRatio).dp else 0.dp),
+                            .padding(
+                                end = if (!isExpanded)
+                                        ((widthRatio * collapsedCardHeight.value) / heightRatio).dp
+                                      else 0.dp
+                            ),
                         text = field.name,
                         fontSize = 24.sp,
                         color = MaterialTheme.colorScheme.onSurface
@@ -155,7 +160,11 @@ fun FieldCard(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             ) {
-                                append(" ${field.plantedCrop ?: "Not planted yet"}")
+                                append(" ${
+                                    if(field.plantedCrop != null) 
+                                        stringResource(id = field.plantedCrop.localizedNameID) 
+                                    else "Not planted"
+                                }")
                             }
                         }
                     )

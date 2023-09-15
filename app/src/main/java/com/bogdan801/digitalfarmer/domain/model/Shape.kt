@@ -34,7 +34,7 @@ open class ShapeBase(
 @Suppress("MemberVisibilityCanBePrivate")
 class MutableShape(shapePoints: List<LatLng>, private var listOfActions: MutableList<String> = mutableListOf()): ShapeBase(shapePoints.toMutableList()){
     constructor(shapeString: String) : this(mutableListOf()) {
-        val coordinates = shapeString.split(";")
+        val coordinates = shapeString.replace(" ", "").split(";")
         val listOfPoints = mutableListOf<LatLng>()
         coordinates.forEach { coordinatesString ->
             val splitCoordinates = coordinatesString.split(",")
@@ -108,7 +108,7 @@ class MutableShape(shapePoints: List<LatLng>, private var listOfActions: Mutable
 
 class Shape(shapePoints: List<LatLng> = listOf(), private var listOfActions: MutableList<String> = mutableListOf()): ShapeBase(shapePoints.toMutableList()){
     constructor(shapeString: String) : this(mutableListOf()) {
-        val coordinates = shapeString.split(";")
+        val coordinates = shapeString.replace(" ", "").split(";")
         val listOfPoints = mutableListOf<LatLng>()
         coordinates.forEach { coordinatesString ->
             val splitCoordinates = coordinatesString.split(",")

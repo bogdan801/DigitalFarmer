@@ -35,13 +35,13 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideRealtimeDatabase(@ApplicationContext app: Context): DatabaseReference {
+    fun provideRealtimeDatabase(): DatabaseReference {
         return Firebase.database("https://digitalfarmer-6f2c7-default-rtdb.europe-west1.firebasedatabase.app/").reference
     }
 
     @Provides
     @Singleton
-    fun provideRepository(db: DatabaseReference, client: AuthUIClient): Repository {
-        return RepositoryImpl(db, client)
+    fun provideRepository(db: DatabaseReference, client: AuthUIClient, @ApplicationContext app: Context): Repository {
+        return RepositoryImpl(db, client, app)
     }
 }

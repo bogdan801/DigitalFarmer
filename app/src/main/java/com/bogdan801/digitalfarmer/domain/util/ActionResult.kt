@@ -1,7 +1,4 @@
-package com.bogdan801.digitalfarmer.data.remote_db
-
-import com.bogdan801.digitalfarmer.domain.model.Field
-
+package com.bogdan801.digitalfarmer.domain.util
 
 sealed class ActionResult<T>(val data: T? = null, val message: String? = null) {
     class Success<T>(data: T?): ActionResult<T>(data)

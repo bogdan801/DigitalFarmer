@@ -48,16 +48,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import com.bogdan801.digitalfarmer.domain.model.Crop
 import com.bogdan801.digitalfarmer.domain.model.Field
 import com.bogdan801.digitalfarmer.domain.model.Shape
+import com.bogdan801.digitalfarmer.domain.model.SortMethod
 import com.bogdan801.digitalfarmer.presentation.composables.AlertDialogBox
 import com.bogdan801.digitalfarmer.presentation.composables.FieldCard
 import com.bogdan801.digitalfarmer.presentation.util.containerColor
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
 import kotlin.random.Random
+
+//import androidx.navigation.NavHostController
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class,
     ExperimentalAnimationApi::class
@@ -65,10 +68,11 @@ import kotlin.random.Random
 @Composable
 fun FieldsScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController,
+    //navController: NavHostController,
     viewModel: FieldsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val state by viewModel.screenState.collectAsStateWithLifecycle()
 
     // Visibility for FAB
@@ -178,7 +182,11 @@ fun FieldsScreen(
                     val colorTransitionFraction = scrollBehavior.state.overlappedFraction
                     val fraction = if (colorTransitionFraction > 0.01f) 1f else 0f
                     val appBarContainerColor by animateColorAsState(
-                        targetValue = containerColor(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp), fraction),
+                        targetValue = containerColor(
+                            MaterialTheme.colorScheme.surface,
+                            MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+                            fraction
+                        ),
                         animationSpec = spring(stiffness = Spring.StiffnessMediumLow), label = ""
                     )
                     Column(
@@ -197,7 +205,12 @@ fun FieldsScreen(
                             SortMethod.values().forEach { method ->
                                 InputChip(
                                     selected = state.currentSortMethod == method,
-                                    onClick = { viewModel.selectSortMethod(method) },
+                                    onClick = {
+                                        viewModel.selectSortMethod(method)
+                                        scope.launch {
+                                            state.lazyColumnState.scrollToItem(0)
+                                        }
+                                    },
                                     label = { Text(stringResource(id = method.localeStringID)) }
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
@@ -219,20 +232,26 @@ fun FieldsScreen(
                     onClick = {
                         viewModel.addField(
                             Field(
-                                name = "Город",
-                                shape = Shape("51.799805,33.053209;51.799795,33.053360;51.799136,33.053382;51.799119, 33.053221;51.799805,33.053209"),
+                                name = "4 Город",
+                                shape = Shape(shapeString =
+                                    "51.797695,33.057005;" +
+                                    "51.798255,33.057647;" +
+                                    "51.797904,33.057845;" +
+                                    "51.797500,33.057303;" +
+                                    "51.797695,33.057005"
+                                ),
                                 plantedCrop = Crop.values()[Random.nextInt(Crop.values().size)],
                                 plantDate = LocalDateTime(
                                     year = 2023,
                                     month = Month.APRIL,
-                                    dayOfMonth = 26,
+                                    dayOfMonth = 30,
                                     hour = 10,
                                     minute = 0
                                 ),
                                 harvestDate = LocalDateTime(
                                     year = 2023,
-                                    month = Month.SEPTEMBER,
-                                    dayOfMonth = 2,
+                                    month = Month.AUGUST,
+                                    dayOfMonth = 21,
                                     hour = 14,
                                     minute = 40
                                 )
@@ -269,17 +288,17 @@ fun FieldsScreen(
                     top = 8.dp,
                     bottom = 72.dp
                 ),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ){
                 items(
                     items = state.listOfFields,
                     key = {it.id}
                 ){field ->
                     FieldCard(
-                        modifier = Modifier
-                            .widthIn(max = 500.dp),
+                        modifier = Modifier.widthIn(max = 500.dp),
                         field = field,
-                        widthRatio = 5.0,
+                        widthRatio = 5.5,
                         heightRatio = 4.0,
                         isExpanded = state.cardExpansionState[field.id] ?: false,
                         isSelected = state.cardSelectionState[field.id] ?: false,
@@ -299,7 +318,6 @@ fun FieldsScreen(
                             viewModel.updateCardExpansionState(field.id, false)
                         }
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
             AlertDialogBox(

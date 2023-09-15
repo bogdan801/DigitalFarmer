@@ -1,8 +1,8 @@
 package com.bogdan801.digitalfarmer.presentation.screens.main.fields
 
 import androidx.compose.foundation.lazy.LazyListState
-import com.bogdan801.digitalfarmer.R
 import com.bogdan801.digitalfarmer.domain.model.Field
+import com.bogdan801.digitalfarmer.domain.model.SortMethod
 
 data class FieldsScreenState(
     val listOfFields: List<Field> = listOf(),
@@ -16,12 +16,3 @@ data class FieldsScreenState(
     val showFAB: Boolean = true,
     val showDeleteDialog: Boolean = false
 )
-
-
-enum class SortMethod(val localeStringID: Int){
-    Name(R.string.sort_name),
-    Area(R.string.sort_area),
-    Crop(R.string.sort_crop),
-    PlantingDate(R.string.sort_planting_date),
-    HarvestDate(R.string.sort_harvest_date)
-}
