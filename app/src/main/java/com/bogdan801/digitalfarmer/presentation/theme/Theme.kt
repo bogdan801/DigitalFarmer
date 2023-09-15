@@ -16,25 +16,65 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Brown80,
+    secondary = DarkBrown80,
+    tertiary = Green80,
+    error = Red80,
+    onPrimary = Brown20,
+    onSecondary = DarkBrown20,
+    onTertiary = Green20,
+    onError = Red20,
+    primaryContainer = Brown30,
+    secondaryContainer = DarkBrown30,
+    tertiaryContainer = Green30,
+    errorContainer = Red30,
+    onPrimaryContainer = Brown90,
+    onSecondaryContainer = DarkBrown90,
+    onTertiaryContainer = Green90,
+    onErrorContainer = Red90,
+    inversePrimary = Brown40,
+    surface = Gray6,
+    surfaceVariant = Gray24,
+    surfaceTint = PaleBrown80,
+    onSurface = Gray80,
+    onSurfaceVariant = PaleBrown90,
+    outline = PaleBrown60,
+    outlineVariant = PaleBrown30,
+    inverseSurface = Gray80,
+    inverseOnSurface = Gray10,
+    scrim = Gray0,
+    background = Gray6
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primary = Brown40,
+    secondary = DarkBrown20,
+    tertiary = Green20,
+    error = Red40,
+    onPrimary = Brown100,
+    onSecondary = DarkBrown100,
+    onTertiary = Green100,
+    onError = Red100,
+    primaryContainer = Brown90,
+    secondaryContainer = DarkBrown90,
+    tertiaryContainer = Green90,
+    errorContainer = Red90,
+    onPrimaryContainer = Brown10,
+    onSecondaryContainer = DarkBrown10,
+    onTertiaryContainer = Green10,
+    onErrorContainer = Red10,
+    inversePrimary = Brown80,
+    surface = Gray97,
+    surfaceVariant = Gray95,
+    surfaceTint = Brown30,
+    onSurface = Gray10,
+    onSurfaceVariant = PaleBrown30,
+    outline = PaleBrown50,
+    outlineVariant = PaleBrown80,
+    inverseSurface = Gray20,
+    inverseOnSurface = Gray95,
+    scrim = Gray0,
+    background = Gray97
 )
 
 @Composable
@@ -52,6 +92,7 @@ fun DigitalFarmerTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {

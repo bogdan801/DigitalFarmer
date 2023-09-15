@@ -70,8 +70,6 @@ dependencies {
 
     //accompanist
     def accompanist_version = "0.25.1"
-    //system UI controller
-    implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
     //placeholder
     implementation "com.google.accompanist:accompanist-placeholder-material:$accompanist_version"
     //permission

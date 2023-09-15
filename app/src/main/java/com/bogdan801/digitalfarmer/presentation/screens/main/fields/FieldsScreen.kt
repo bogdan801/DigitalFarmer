@@ -273,6 +273,7 @@ fun FieldsScreen(
 
         }
     ) { paddingValues ->
+
         Box(modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues)
